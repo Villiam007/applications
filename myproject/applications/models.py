@@ -16,8 +16,6 @@ class Application(models.Model) :
     # https://django-taggit.readthedocs.io/en/latest/api.html#TaggableManager
 
     # Favorites
-    favorites = models.ManyToManyField(settings.AUTH_USER_MODEL,
-        through='Fav', related_name='favorite_applications')
 
     # Picture
     picture = models.BinaryField(null=True, blank=True, editable=True)

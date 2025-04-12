@@ -1,1 +1,6 @@
-<h1> Hello World </h1>
+<h1>Applications</h1>
+<ul>
+    {% for application in application_list %}
+        <li>{{ application.title }}</li>
+    {% endfor %}
+</ul>
