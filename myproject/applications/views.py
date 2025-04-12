@@ -30,3 +30,4 @@ class ApplicationsListView(OwnerListView):
             favorites = [ row['id'] for row in rows ]
         ctx = {'application_list' : application_list, 'favorites': favorites}
         return render(request, self.template_name, ctx)
+    กไฟื่กรืฟไรกื่
