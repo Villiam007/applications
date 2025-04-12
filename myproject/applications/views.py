@@ -21,12 +21,3 @@ class ApplicationsListView(OwnerListView):
             application_list = Application.objects.filter(query).select_related().distinct().order_by('-updated_at')[:10]
         else :
             application_list = Application.objects.all().order_by('-updated_at')[:10]
-
-        favorites = list()
-        if request.user.is_authenticated:
-            # rows = [{'id': 2}, {'id': 4} ... ]  (A list of rows)
-            rows = request.user.favorite_applications.values('id')
-            # favorites = [2, 4, ...] using list comprehension
-            favorites = [ row['id'] for row in rows ]
-        ctx = {'application_list' : application_list, 'favorites': favorites}
-        return render(request, self.template_name, ctx)
