@@ -1,32 +1,39 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q
 
-from applications.models import Application
+from applications.models import Product, Order, OrderItem, Category, Favorite, Review
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic.edit import FormMixin
 from applications.owners import OwnerListView, OwnerDetailView, OwnerCreateView, OwnerUpdateView, OwnerDeleteView
 # Create your views here.
-class ApplicationsListView(OwnerListView):
-    model = Application
+
+class ProductsListView(OwnerListView):
+    model = Product
     template_name = "applications/application_list.html"
+    context_object_name = "products"
 
-    def get(self, request) :
-        strval =  request.GET.get("search", False)
-        if strval :
-            # Simple title-only search
-            # __icontains for case-insensitive search
-            query = Q(title__icontains=strval)
-            query.add(Q(text__icontains=strval), Q.OR)
-            query.add(Q(tags__name__in=[strval]), Q.OR)
-            application_list = Application.objects.filter(query).select_related().distinct().order_by('-updated_at')[:10]
-        else :
-            application_list = Application.objects.all().order_by('-updated_at')[:10]
+    def get_queryset(self):
+        category = self.request.GET.get('category', None)
+        if category:
+            return Product.objects.filter(category__name=category)
+        return Product.objects.all()
 
-        favorites = list()
-        if request.user.is_authenticated:
-            # rows = [{'id': 2}, {'id': 4} ... ]  (A list of rows)
-            rows = request.user.favorite_applications.values('id')
-            # favorites = [2, 4, ...] using list comprehension
-            favorites = [ row['id'] for row in rows ]
-        ctx = {'application_list' : application_list, 'favorites': favorites}
-        return render(request, self.template_name, ctx)
+class ProductsDetailView(OwnerDetailView):
+    model = Product
+    template_name = "applications/application_detail.html"
+    context_object_name = "product"
+
+class ProductsCreateView(UserPassesTestMixin, OwnerCreateView):
+    model = Product
+    template_name = "applications/application_form.html"
+    fields = ['title', 'description', 'price', 'stock', 'category']
+
+    def test_func(self):
+        # Only staff members can add products
+        return self.request.user.is_staff
+    
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
