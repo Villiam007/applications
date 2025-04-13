@@ -1,5 +1,5 @@
 from django.views.generic import CreateView, UpdateView, DeleteView, ListView, DetailView
-
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 
@@ -20,6 +20,7 @@ class OwnerCreateView(LoginRequiredMixin, CreateView):
     Sub-class of the CreateView to automatically pass the Request to the Form
     and add the owner to the saved object.
     """
+    pass
 
     # Saves the form instance, sets the current object for the view, and redirects to get_success_url().
     def form_valid(self, form):

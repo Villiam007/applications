@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block title %}
+    {% endblock %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="navbar">
+            <div class="logo">
+                <a href="{% url 'product_list' %}">My Shop</a>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="{% url 'product_list' %}?category=Home">Home</a></li>
+                    <li><a href="{% url 'product_list' %}?category=Apple">Apple</a></li>
+                    <li><a href="{% url 'product_list' %}?category=Windows">Windows</a></li>
+                    <li><a href="{% url 'product_list' %}?category=Accessories">Accessories</a></li>
+                </ul>
+            </nav>
+            <div class="user-actions">
+                {% if user.is_authenticated %}
+                    <span>Welcome, {{ user.username }}</span>
+                    <a href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Login</a>
+                {% endif %}
+            </div>
+            <!-- Search Form -->
+            <form method="get" action="{% url 'application:applications_list' %}">
+                <input type="text" name="search" placeholder="Search products..." value="{{ request.GET.search }}">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+        <!-- Content for each page will be injected here -->
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 My Shop. All rights reserved.</p>
+    </footer>
+</body>
+</html>

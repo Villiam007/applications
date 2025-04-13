@@ -1,6 +1,16 @@
-<h1>Applications</h1>
+{% extends "applications/base.html" %}
+
+{% block title %}
+Product List
+{% endblock %}
+
+{% block content %}
+<h1>Product List</h1>
 <ul>
-    {% for application in application_list %}
-        <li>{{ application.title }}</li>
+    {% for product in products %}
+        <li>
+            <a href="{{ product.get_absolute_url }}">{{ product.title }}</a> - {{ product.price }} USD
+        </li>
     {% endfor %}
 </ul>
+{% endblock %}
