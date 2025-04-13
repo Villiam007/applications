@@ -6,11 +6,15 @@ Product List
 
 {% block content %}
 <h1>Product List</h1>
+
+<!-- Product List -->
 <ul>
     {% for product in products %}
         <li>
             <a href="{{ product.get_absolute_url }}">{{ product.title }}</a> - {{ product.price }} USD
         </li>
+    {% empty %}
+        <li>No products found.</li>
     {% endfor %}
 </ul>
 {% endblock %}
