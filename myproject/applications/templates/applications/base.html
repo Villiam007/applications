@@ -47,6 +47,18 @@
                       <li class="nav-item">
                         <a class="nav-link" href="{% url 'application:product_list' %}?category=Accessories">Accessories</a>
                       </li>
+                      {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <span class="nav-link">Welcome, {{ user.username }}</span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        </li>
+                      {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        </li>
+                      {% endif %}
                     </ul>
                 </div>
               </div>
@@ -59,14 +71,14 @@
                     <li><a href="{% url 'application:product_list' %}?category=Accessories">Accessories</a></li>
                 </ul> 
             </nav> -->
-            <div class="user-actions">
+            <!-- <div class="user-actions">
                 {% if user.is_authenticated %}
                     <span>Welcome, {{ user.username }}</span>
                     <a href="{% url 'logout' %}">Logout</a>
                 {% else %}
                     <a href="{% url 'login' %}">Login</a>
                 {% endif %}
-            </div>
+            </div> -->
             <!-- Search Form -->
             <form method="get" action="{% url 'application:product_list' %}">
                 <input type="text" name="search" placeholder="Search products..." value="{{ request.GET.search }}">
