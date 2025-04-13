@@ -7,6 +7,7 @@ from applications.models import Product, Order, OrderItem, Category, Favorite, R
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.views.generic.edit import FormMixin
 from applications.owners import OwnerListView, OwnerDetailView, OwnerCreateView, OwnerUpdateView, OwnerDeleteView
+from applications.forms import CreateForm
 # Create your views here.
 
 class ProductsListView(OwnerListView):
