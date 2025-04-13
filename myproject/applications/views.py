@@ -38,3 +38,12 @@ class ProductsCreateView(UserPassesTestMixin, OwnerCreateView):
     def form_valid(self, form):
         form.instance.owner = self.request.user
         return super().form_valid(form)
+    
+class ProductsUpdateView(UpdateView):
+    pass
+
+class ProductsDeleteView(DeleteView):
+    pass
+
+class FavoriteListView(LoginRequiredMixin, ListView):
+    pass
