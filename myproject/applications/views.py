@@ -39,8 +39,8 @@ class ProductsCreateView(LoginRequiredMixin, UserPassesTestMixin, OwnerCreateVie
     def form_valid(self, form):
         form.instance.owner = self.request.user
         return super().form_valid(form)
-
-class ProductsUpdateView(LoginRequiredMixin, UserPassesTestMixin, OwnerUpdateView):
+    
+class ProductsUpdateView(LoginRequiredMixin, UserPassesTestMixin, View):
     model = Product
     fields = ['title', 'price', 'description', 'stock', 'category', 'picture']
     template_name = 'applications/application_form.html'
@@ -77,4 +77,3 @@ class ProductsDeleteView(LoginRequiredMixin, UserPassesTestMixin, OwnerDeleteVie
     def test_func(self):
         # Only staff members can delete products
         return self.request.user.is_staff
-    
