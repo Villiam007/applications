@@ -60,6 +60,10 @@
                         </li>
                       {% endif %}
                     </ul>
+                    <form class="d-flex ms-auto" method="get" action="{% url 'application:product_list' %}">
+                        <input type="text" name="search" placeholder="Search products..." value="{{ request.GET.search }}">
+                        <button type="submit">Search</button>
+                    </form>
                 </div>
               </div>
             </nav>
@@ -80,10 +84,10 @@
                 {% endif %}
             </div> -->
             <!-- Search Form -->
-            <form method="get" action="{% url 'application:product_list' %}">
+            <!-- <form class="d-flex ms-auto" method="get" action="{% url 'application:product_list' %}">
                 <input type="text" name="search" placeholder="Search products..." value="{{ request.GET.search }}">
                 <button type="submit">Search</button>
-            </form>
+            </form> -->
         </div>
     </header>
 
