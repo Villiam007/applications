@@ -14,14 +14,14 @@
     <header>
         <div class="navbar">
             <div class="logo">
-                <a href="{% url 'product_list' %}">My Shop</a>
+                <a href="{% url 'application:product_list' %}">My Shop</a>
             </div>
             <nav>
                 <ul>
-                    <li><a href="{% url 'product_list' %}?category=Home">Home</a></li>
-                    <li><a href="{% url 'product_list' %}?category=Apple">Apple</a></li>
-                    <li><a href="{% url 'product_list' %}?category=Windows">Windows</a></li>
-                    <li><a href="{% url 'product_list' %}?category=Accessories">Accessories</a></li>
+                    <li><a href="{% url 'application:product_list' %}?category=Home">Home</a></li>
+                    <li><a href="{% url 'application:product_list' %}?category=Apple">Apple</a></li>
+                    <li><a href="{% url 'application:product_list' %}?category=Windows">Windows</a></li>
+                    <li><a href="{% url 'application:product_list' %}?category=Accessories">Accessories</a></li>
                 </ul>
             </nav>
             <div class="user-actions">
