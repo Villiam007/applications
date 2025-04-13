@@ -23,3 +23,7 @@ class ApplicationsListView(OwnerListView):
 
         context = {'application_list': application_list}
         return render(request, self.template_name, context)
+
+class ProductsListView(OwnerListView):
+    model = Product
+    template_name = "applications/application_list.html"
