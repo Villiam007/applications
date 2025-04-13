@@ -29,7 +29,7 @@
             </div> -->
             <nav class="navbar navbar-expand-lg bg-body-tertiary">
                 <div class="container-fluid">
-                  <a class="navbar-brand" href="{% url 'application:product_list' %}">My Shop</a>
+                  <a class="navbar-brand" href="{% url 'application:product_list' %}">MyShop</a>
                   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                   </button>
@@ -38,18 +38,27 @@
                       <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{% url 'application:product_list' %}?category=Home">Home</a>
                       </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="{% url 'application:product_list' %}?category=Apple">Apple</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="{% url 'application:product_list' %}?category=Windows">Windows</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="{% url 'application:product_list' %}?category=Accessories">Accessories</a>
+                      </li>
                     </ul>
                 </div>
               </div>
             </nav>
-            <nav>
+            <!-- <nav>
                 <ul>        
-                    <!-- <li><a href="{% url 'application:product_list' %}?category=Home">Home</a></li> -->
-                    <li><a href="{% url 'application:product_list' %}?category=Apple">Apple</a></li>
+                    <li><a href="{% url 'application:product_list' %}?category=Home">Home</a></li> 
+                    <li><a href="{% url 'application:product_list' %}?category=Apple">Apple</a></li> 
                     <li><a href="{% url 'application:product_list' %}?category=Windows">Windows</a></li>
                     <li><a href="{% url 'application:product_list' %}?category=Accessories">Accessories</a></li>
                 </ul> 
-            </nav>
+            </nav> -->
             <div class="user-actions">
                 {% if user.is_authenticated %}
                     <span>Welcome, {{ user.username }}</span>
