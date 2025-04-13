@@ -1,6 +1,6 @@
 from django.urls import path
 from applications import views
-from applications.views import ProductsListView, ProductsCreateView
+from applications.views import ProductsListView, ProductsCreateView, ProductsUpdateView, ProductsDeleteView, ProductsDetailView, FavoriteListView
 
 app_name = 'application'
 urlpatterns = [
