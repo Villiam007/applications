@@ -35,7 +35,7 @@ class ProductsCreateView(LoginRequiredMixin, UserPassesTestMixin, OwnerCreateVie
     def test_func(self):
         # Only staff members can add products
         return self.request.user.is_staff
-    
+
     def form_valid(self, form):
         form.instance.owner = self.request.user
         return super().form_valid(form)
