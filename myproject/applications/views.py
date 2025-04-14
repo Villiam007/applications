@@ -40,7 +40,7 @@ class ProductsCreateView(LoginRequiredMixin, UserPassesTestMixin, OwnerCreateVie
         form.instance.owner = self.request.user
         return super().form_valid(form)
     
-class ProductsUpdateView(LoginRequiredMixin, UserPassesTestMixin, View):
+class ProductsUpdateView(LoginRequiredMixin, UserPassesTestMixin, OwnerUpdateView):
     model = Product
     fields = ['title', 'price', 'description', 'stock', 'category', 'picture']
     template_name = 'applications/application_form.html'
