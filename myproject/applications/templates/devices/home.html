@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tech Store - Home{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Welcome to TechStore</h1>
+                <p>Your one-stop destination for the latest tech products across multiple platforms. Discover amazing deals on iOS devices, Windows computers, and must-have accessories.</p>
+                <a href="{% url 'product_search' %}" class="btn btn-lg">Shop Now</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Featured Categories -->
+    <section class="featured-categories">
+        <div class="container">
+            <h2 class="section-title">Browse Categories</h2>
+            
+            <div class="category-grid">
+                {% for category in categories %}
+                    <a href="{% url 'category_detail' slug=category.slug %}" class="category-card">
+                        <div class="category-img">
+                            {% if category.image %}
+                                <img src="{{ category.image.url }}" alt="{{ category.name }}">
+                            {% else %}
+                                <img src="{% static 'images/placeholder.png' %}" alt="{{ category.name }}">
+                            {% endif %}
+                        </div>
+                        <h3>{{ category.name }}</h3>
+                    </a>
+                {% empty %}
+                    <p>No categories found.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    
+    <!-- Featured Products -->
+    <section class="product-section">
+        <div class="container">
+            <h2 class="section-title">Featured Products</h2>
+            
+            <div class="product-grid">
+                {% for product in featured_products %}
+                    <div class="product-card">
+                        <div class="product-badges">
+                            {% if product.is_new %}<span class="badge bg-success">New</span>{% endif %}
+                            {% if product.is_bestseller %}<span class="badge bg-primary">Bestseller</span>{% endif %}
+                            {% if product.sale_price %}<span class="badge bg-danger">Sale</span>{% endif %}
+                        </div>
+                        
+                        <a href="{% url 'product_detail' slug=product.slug %}" class="product-img">
+                            <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+                        </a>
+                        
+                        <div class="product-info">
+                            <a href="{% url 'product_detail' slug=product.slug %}" class="product-title">{{ product.title }}</a>
+                            <p class="product-category">{{ product.category.name }}</p>
+                            
+                            <div class="product-price">
+                                {% if product.sale_price %}
+                                    <span class="old-price">${{ product.price }}</span>
+                                    <span class="current-price">${{ product.sale_price }}</span>
+                                {% else %}
+                                    <span class="current-price">${{ product.price }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="product-rating">
+                                {% with rating=product.average_rating %}
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% elif forloop.counter <= rating|add:"0.5" %}
+                                            <i class="fas fa-star-half-alt"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span>({{ product.reviews.count }})</span>
+                                {% endwith %}
+                            </div>
+                            
+                            <div class="product-actions">
+                                <form action="{% url 'add_to_cart' product_id=product.id %}" method="post" class="add-to-cart-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
+                                </form>
+                                
+                                {% if user.is_authenticated %}
+                                    <a href="{% url 'add_to_favorites' product_id=product.id %}" class="favorite-btn">
+                                        <i class="{% if product in user.favorites.all %}fas{% else %}far{% endif %} fa-heart"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No featured products found.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    
+    <!-- New Arrivals -->
+    <section class="product-section">
+        <div class="container">
+            <h2 class="section-title">New Arrivals</h2>
+            
+            <div class="product-grid">
+                {% for product in new_products %}
+                    <div class="product-card">
+                        <div class="product-badges">
+                            {% if product.is_new %}<span class="badge bg-success">New</span>{% endif %}
+                            {% if product.is_bestseller %}<span class="badge bg-primary">Bestseller</span>{% endif %}
+                            {% if product.sale_price %}<span class="badge bg-danger">Sale</span>{% endif %}
+                        </div>
+                        
+                        <a href="{% url 'product_detail' slug=product.slug %}" class="product-img">
+                            <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+                        </a>
+                        
+                        <div class="product-info">
+                            <a href="{% url 'product_detail' slug=product.slug %}" class="product-title">{{ product.title }}</a>
+                            <p class="product-category">{{ product.category.name }}</p>
+                            
+                            <div class="product-price">
+                                {% if product.sale_price %}
+                                    <span class="old-price">${{ product.price }}</span>
+                                    <span class="current-price">${{ product.sale_price }}</span>
+                                {% else %}
+                                    <span class="current-price">${{ product.price }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="product-actions">
+                                <form action="{% url 'add_to_cart' product_id=product.id %}" method="post" class="add-to-cart-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No new products found.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    
+    <!-- Call to Action -->
+    <section class="cta">
+        <div class="container">
+            <h2>Subscribe to Our Newsletter</h2>
+            <p>Stay updated with the latest products, exclusive offers, and tech news.</p>
+            <form class="newsletter-form">
+                <div class="input-group">
+                    <input type="email" class="form-control" placeholder="Your email address" required>
+                    <button type="submit" class="btn btn-white">Subscribe</button>
+                </div>
+            </form>
+        </div>
+    </section>
+    
+    <!-- Bestsellers -->
+    <section class="product-section">
+        <div class="container">
+            <h2 class="section-title">Bestsellers</h2>
+            
+            <div class="product-grid">
+                {% for product in bestsellers %}
+                    <div class="product-card">
+                        <div class="product-badges">
+                            {% if product.is_new %}<span class="badge bg-success">New</span>{% endif %}
+                            {% if product.is_bestseller %}<span class="badge bg-primary">Bestseller</span>{% endif %}
+                            {% if product.sale_price %}<span class="badge bg-danger">Sale</span>{% endif %}
+                        </div>
+                        
+                        <a href="{% url 'product_detail' slug=product.slug %}" class="product-img">
+                            <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+                        </a>
+                        
+                        <div class="product-info">
+                            <a href="{% url 'product_detail' slug=product.slug %}" class="product-title">{{ product.title }}</a>
+                            <p class="product-category">{{ product.category.name }}</p>
+                            
+                            <div class="product-price">
+                                {% if product.sale_price %}
+                                    <span class="old-price">${{ product.price }}</span>
+                                    <span class="current-price">${{ product.sale_price }}</span>
+                                {% else %}
+                                    <span class="current-price">${{ product.price }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="product-actions">
+                                <form action="{% url 'add_to_cart' product_id=product.id %}" method="post" class="add-to-cart-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No bestselling products found.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endblock %}
