@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 app_name = 'devices'
@@ -22,6 +22,8 @@ urlpatterns = [
     path('accessories/', views.AccessoriesView.as_view(), name='accessories'),
     
     # User Authentication & Profile Views
+    path('login/', views.LoginView.as_view(), name='login'),
+    path('logout/', views.LogoutView.as_view(), name='logout'),
     path('profile/', views.profile_view, name='profile'),
     
     # Review Views

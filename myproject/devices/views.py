@@ -9,6 +9,7 @@ from django.db.models import Q, Avg, Count
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.conf import settings
+from django.contrib.auth.views import LogoutView as DjangoLogoutView
 
 from .models import (
     Category, Brand, Product, ProductImage, Tag, ProductSpecification,
@@ -676,3 +677,35 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
+
+# Add these authentication views
+class LoginView(TemplateView):
+    template_name = 'devices/login.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = AuthenticationForm()
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, f"Welcome back, {username}!")
+                next_url = request.GET.get('next', 'devices:home')
+                return redirect(next_url)
+        
+        messages.error(request, "Invalid username or password.")
+        return render(request, self.template_name, {'form': form})
+
+
+class LogoutView(DjangoLogoutView):
+    next_page = 'devices:home'
+    
+    def dispatch(self, request, *args, **kwargs):
+        messages.success(request, "You have been logged out successfully.")
+        return super().dispatch(request, *args, **kwargs)  
