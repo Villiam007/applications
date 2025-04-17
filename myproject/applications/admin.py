@@ -1,5 +1,4 @@
 from django.contrib import admin
-<<<<<<< HEAD
 from django.utils.html import format_html
 from .models import (
     Category, Brand, Product, ProductImage, Tag, ProductSpecification,
@@ -178,5 +177,3 @@ class CouponAdmin(admin.ModelAdmin):
         return "-"
     
     discount_display.short_description = 'Discount'
-=======
-
