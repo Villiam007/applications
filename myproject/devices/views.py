@@ -10,6 +10,8 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib.auth.views import LogoutView as DjangoLogoutView
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, authenticate, logout
 
 from .models import (
     Category, Brand, Product, ProductImage, Tag, ProductSpecification,
