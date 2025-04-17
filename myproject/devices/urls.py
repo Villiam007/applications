@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 
+app_name = 'devices'
+
 urlpatterns = [
     # Home and General Views
     path('', views.HomeView.as_view(), name='home'),
