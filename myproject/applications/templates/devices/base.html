@@ -1,0 +1,147 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Tech Store{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="{% url 'home' %}" class="logo">TechStore</a>
+                
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="nav-links">
+                    <li><a href="{% url 'home' %}" class="home-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a></li>
+                    <li><a href="{% url 'category_list' %}" class="{% if 'category' in request.path %}active{% endif %}">Categories</a></li>
+                    <li><a href="{% url 'ios_products' %}" class="{% if 'ios' in request.path %}active{% endif %}">iOS</a></li>
+                    <li><a href="{% url 'windows_products' %}" class="{% if 'windows' in request.path %}active{% endif %}">Windows</a></li>
+                    <li><a href="{% url 'accessories' %}" class="{% if 'accessories' in request.path %}active{% endif %}">Accessories</a></li>
+                    
+                    <!-- Search -->
+                    <li>
+                        <form action="{% url 'product_search' %}" method="get" class="search-form">
+                            <input type="text" name="q" placeholder="Search..." required>
+                            <button type="submit"><i class="fas fa-search"></i></button>
+                        </form>
+                    </li>
+                    
+                    <!-- User Menu -->
+                    {% if user.is_authenticated %}
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle">
+                                <i class="fas fa-user"></i>
+                                {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url 'profile' %}">My Profile</a></li>
+                                <li><a href="{% url 'order_list' %}">My Orders</a></li>
+                                <li><a href="{% url 'logout' %}">Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li><a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                        <li><a href="{% url 'register' %}"><i class="fas fa-user-plus"></i> Register</a></li>
+                    {% endif %}
+                    
+                    <!-- Cart -->
+                    <li>
+                        <a href="{% url 'cart_detail' %}" class="cart-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            {% if user.is_authenticated and user.cart.total_items %}
+                                <span class="cart-count">{{ user.cart.total_items }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Messages -->
+    {% if messages %}
+        <div class="messages-container">
+            <div class="container">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+    
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Information</h3>
+                    <ul>
+                        <li><a href="{% url 'about' %}">About Us</a></li>
+                        <li><a href="{% url 'contact' %}">Contact Us</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms & Conditions</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Customer Service</h3>
+                    <ul>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Shipping & Returns</a></li>
+                        <li><a href="#">Warranty</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>My Account</h3>
+                    <ul>
+                        <li><a href="{% url 'profile' %}">My Profile</a></li>
+                        <li><a href="{% url 'order_list' %}">Order History</a></li>
+                        <li><a href="#">Wish List</a></li>
+                        <li><a href="#">Newsletter</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Connect With Us</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; {% now "Y" %} TechStore. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

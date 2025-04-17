@@ -1,0 +1,448 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.title }} - Tech Store{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/product.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="breadcrumb-container">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'category_detail' slug=product.category.slug %}">{{ product.category.name }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ product.title }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- Product Detail -->
+<section class="product-detail">
+    <div class="container">
+        <div class="row">
+            <!-- Product Images -->
+            <div class="col-lg-6">
+                <div class="product-gallery">
+                    <div class="main-image">
+                        <img src="{{ product.main_image.url }}" alt="{{ product.title }}" id="main-product-image">
+                    </div>
+                    
+                    {% if images %}
+                    <div class="thumbnail-gallery">
+                        <div class="thumbnail-item active" data-image="{{ product.main_image.url }}">
+                            <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+                        </div>
+                        {% for image in images %}
+                        <div class="thumbnail-item" data-image="{{ image.image.url }}">
+                            <img src="{{ image.image.url }}" alt="{{ product.title }} - Image {{ forloop.counter }}">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Product Info -->
+            <div class="col-lg-6">
+                <div class="product-info">
+                    <h1 class="product-title">{{ product.title }}</h1>
+                    
+                    <div class="product-meta">
+                        <span class="product-brand">Brand: <a href="{% url 'product_search' %}?brand={{ product.brand.slug }}">{{ product.brand.name }}</a></span>
+                        <span class="product-category">Category: <a href="{% url 'category_detail' slug=product.category.slug %}">{{ product.category.name }}</a></span>
+                        {% if product.platform %}
+                        <span class="product-platform">Platform: <a href="{% url 'product_search' %}?platform={{ product.platform }}">{{ product.get_platform_display }}</a></span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="product-rating">
+                        {% with rating=product.average_rating %}
+                        {% for i in "12345" %}
+                        {% if forloop.counter <= rating %}
+                        <i class="fas fa-star"></i>
+                        {% elif forloop.counter <= rating|add:"0.5" %}
+                        <i class="fas fa-star-half-alt"></i>
+                        {% else %}
+                        <i class="far fa-star"></i>
+                        {% endif %}
+                        {% endfor %}
+                        <span class="rating-count">({{ product.reviews.count }} reviews)</span>
+                        {% endwith %}
+                    </div>
+                    
+                    <div class="product-price">
+                        {% if product.sale_price %}
+                        <span class="old-price">${{ product.price }}</span>
+                        <span class="current-price">${{ product.sale_price }}</span>
+                        <span class="discount-badge">{{ product.discount_percentage }}% OFF</span>
+                        {% else %}
+                        <span class="current-price">${{ product.price }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="product-availability">
+                        {% if product.stock > 0 %}
+                        <span class="in-stock"><i class="fas fa-check-circle"></i> In Stock ({{ product.stock }} available)</span>
+                        {% else %}
+                        <span class="out-of-stock"><i class="fas fa-times-circle"></i> Out of Stock</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="product-short-description">
+                        <p>{{ product.short_description }}</p>
+                    </div>
+                    
+                    <!-- Add to Cart Form -->
+                    {% if product.stock > 0 %}
+                    <form action="{% url 'add_to_cart' product_id=product.id %}" method="post" class="add-to-cart-form">
+                        {% csrf_token %}
+                        <div class="quantity-selector">
+                            <label for="quantity">Quantity:</label>
+                            <div class="quantity-controls">
+                                <button type="button" class="quantity-btn minus"><i class="fas fa-minus"></i></button>
+                                <input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ product.stock }}" class="form-control">
+                                <button type="button" class="quantity-btn plus"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                        
+                        <div class="product-actions">
+                            <button type="submit" class="btn btn-primary add-to-cart-btn">
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                            </button>
+                            
+                            {% if user.is_authenticated %}
+                            <a href="{% url 'add_to_favorites' product_id=product.id %}" class="btn btn-outline-danger favorite-btn" data-product-id="{{ product.id }}">
+                                <i class="{% if is_favorite %}fas{% else %}far{% endif %} fa-heart"></i> 
+                                {% if is_favorite %}Added to Favorites{% else %}Add to Favorites{% endif %}
+                            </a>
+                            {% endif %}
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="notify-stock">
+                        <p>This item is currently out of stock. Sign up to be notified when it's available again.</p>
+                        <form class="notify-form">
+                            <div class="input-group">
+                                <input type="email" class="form-control" placeholder="Your email address" required>
+                                <button type="submit" class="btn btn-secondary">Notify Me</button>
+                            </div>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Product Details Tabs -->
+        <div class="product-tabs">
+            <ul class="nav nav-tabs" id="productTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="description" aria-selected="true">Description</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="specifications-tab" data-bs-toggle="tab" data-bs-target="#specifications" type="button" role="tab" aria-controls="specifications" aria-selected="false">Specifications</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false">Reviews ({{ product.reviews.count }})</button>
+                </li>
+            </ul>
+            
+            <div class="tab-content" id="productTabsContent">
+                <!-- Description Tab -->
+                <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+                    <div class="product-description">
+                        {{ product.description|safe }}
+                    </div>
+                </div>
+                
+                <!-- Specifications Tab -->
+                <div class="tab-pane fade" id="specifications" role="tabpanel" aria-labelledby="specifications-tab">
+                    <div class="product-specifications">
+                        {% if specifications %}
+                        <table class="table table-striped">
+                            <tbody>
+                                {% for spec in specifications %}
+                                <tr>
+                                    <th>{{ spec.name }}</th>
+                                    <td>{{ spec.value }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>No specifications available for this product.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Reviews Tab -->
+                <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                    <div class="product-reviews">
+                        <div class="review-summary">
+                            <div class="average-rating">
+                                <h3>{{ product.average_rating|floatformat:1 }}<span>/5</span></h3>
+                                <div class="rating-stars">
+                                    {% with rating=product.average_rating %}
+                                    {% for i in "12345" %}
+                                    {% if forloop.counter <= rating %}
+                                    <i class="fas fa-star"></i>
+                                    {% elif forloop.counter <= rating|add:"0.5" %}
+                                    <i class="fas fa-star-half-alt"></i>
+                                    {% else %}
+                                    <i class="far fa-star"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endwith %}
+                                </div>
+                                <p>Based on {{ product.reviews.count }} reviews</p>
+                            </div>
+                            
+                            <div class="rating-distribution">
+                                {% for i in "54321" %}
+                                <div class="rating-bar">
+                                    <div class="rating-label">{{ i }} <i class="fas fa-star"></i></div>
+                                    <div class="progress">
+                                        {% with count=product.reviews.all|dictsort:"rating"|dictvalue:i|length %}
+                                        {% with percentage=count|default:0|floatformat:0|default:0 %}
+                                        <div class="progress-bar" role="progressbar" style="width: {{ percentage }}%" aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        {% endwith %}
+                                        {% endwith %}
+                                    </div>
+                                    <div class="rating-count">{{ product.reviews.all|dictsort:"rating"|dictvalue:i|length|default:0 }}</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Review Form -->
+                        {% if user.is_authenticated and review_form %}
+                        <div class="review-form-container">
+                            <h3>Write a Review</h3>
+                            <form action="{% url 'add_review' slug=product.slug %}" method="post" class="review-form">
+                                {% csrf_token %}
+                                
+                                <div class="rating-select">
+                                    <p>Your Rating:</p>
+                                    <div class="rating-options">
+                                        {% for i in "12345" %}
+                                        <label for="rating-{{ i }}">
+                                            <input type="radio" name="rating" id="rating-{{ i }}" value="{{ i }}" {% if forloop.counter == 5 %}checked{% endif %}>
+                                            <i class="far fa-star"></i>
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ review_form.title.id_for_label }}">Review Title:</label>
+                                    {{ review_form.title }}
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ review_form.text.id_for_label }}">Review:</label>
+                                    {{ review_form.text }}
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Submit Review</button>
+                            </form>
+                        </div>
+                        {% elif not user.is_authenticated %}
+                        <div class="review-login-prompt">
+                            <p>Please <a href="{% url 'login' %}?next={{ request.path }}">login</a> to write a review.</p>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Review List -->
+                        <div class="reviews-list">
+                            <h3>Customer Reviews</h3>
+                            {% if reviews %}
+                            {% for review in reviews %}
+                            <div class="review-item">
+                                <div class="review-header">
+                                    <div class="review-user">
+                                        <span class="reviewer-name">{{ review.user.get_full_name|default:review.user.username }}</span>
+                                        <span class="review-date">{{ review.created_at|date:"F d, Y" }}</span>
+                                    </div>
+                                    <div class="review-rating">
+                                        {% for i in "12345" %}
+                                        <i class="{% if forloop.counter <= review.rating %}fas{% else %}far{% endif %} fa-star"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <h4 class="review-title">{{ review.title }}</h4>
+                                <div class="review-text">
+                                    <p>{{ review.text }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                            <p>No reviews yet. Be the first to review this product!</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Related Products -->
+        {% if related_products %}
+        <section class="related-products">
+            <h2 class="section-title">Related Products</h2>
+            <div class="product-grid">
+                {% for product in related_products %}
+                <div class="product-card">
+                    <div class="product-badges">
+                        {% if product.is_new %}<span class="badge bg-success">New</span>{% endif %}
+                        {% if product.is_bestseller %}<span class="badge bg-primary">Bestseller</span>{% endif %}
+                        {% if product.sale_price %}<span class="badge bg-danger">Sale</span>{% endif %}
+                    </div>
+                    
+                    <a href="{% url 'product_detail' slug=product.slug %}" class="product-img">
+                        <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+                    </a>
+                    
+                    <div class="product-info">
+                        <a href="{% url 'product_detail' slug=product.slug %}" class="product-title">{{ product.title }}</a>
+                        <p class="product-category">{{ product.category.name }}</p>
+                        
+                        <div class="product-price">
+                            {% if product.sale_price %}
+                            <span class="old-price">${{ product.price }}</span>
+                            <span class="current-price">${{ product.sale_price }}</span>
+                            {% else %}
+                            <span class="current-price">${{ product.price }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="product-actions">
+                            <form action="{% url 'add_to_cart' product_id=product.id %}" method="post" class="add-to-cart-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Image gallery functionality
+        const mainImage = document.getElementById('main-product-image');
+        const thumbnails = document.querySelectorAll('.thumbnail-item');
+        
+        thumbnails.forEach(thumbnail => {
+            thumbnail.addEventListener('click', function() {
+                const imageUrl = this.getAttribute('data-image');
+                mainImage.src = imageUrl;
+                
+                // Update active state
+                thumbnails.forEach(item => item.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Quantity selector
+        const quantityInput = document.getElementById('quantity');
+        const minusBtn = document.querySelector('.quantity-btn.minus');
+        const plusBtn = document.querySelector('.quantity-btn.plus');
+        
+        if (minusBtn && plusBtn && quantityInput) {
+            minusBtn.addEventListener('click', function() {
+                const currentValue = parseInt(quantityInput.value);
+                if (currentValue > 1) {
+                    quantityInput.value = currentValue - 1;
+                }
+            });
+            
+            plusBtn.addEventListener('click', function() {
+                const currentValue = parseInt(quantityInput.value);
+                const maxValue = parseInt(quantityInput.getAttribute('max'));
+                if (currentValue < maxValue) {
+                    quantityInput.value = currentValue + 1;
+                }
+            });
+        }
+        
+        // Rating selector in review form
+        const ratingInputs = document.querySelectorAll('.rating-options input');
+        const ratingLabels = document.querySelectorAll('.rating-options label');
+        
+        ratingInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                const selectedValue = this.value;
+                
+                ratingLabels.forEach((label, index) => {
+                    const star = label.querySelector('i');
+                    if (index < selectedValue) {
+                        star.classList.remove('far');
+                        star.classList.add('fas');
+                    } else {
+                        star.classList.remove('fas');
+                        star.classList.add('far');
+                    }
+                });
+            });
+        });
+        
+        // Init rating display
+        const checkedRating = document.querySelector('.rating-options input:checked');
+        if (checkedRating) {
+            checkedRating.dispatchEvent(new Event('change'));
+        }
+        
+        // Favorite button AJAX
+        const favoriteBtn = document.querySelector('.favorite-btn');
+        if (favoriteBtn) {
+            favoriteBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const productId = this.getAttribute('data-product-id');
+                const isFavorite = this.querySelector('i').classList.contains('fas');
+                const url = isFavorite 
+                    ? `/remove-from-favorites/${productId}/` 
+                    : `/add-to-favorites/${productId}/`;
+                
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const icon = this.querySelector('i');
+                        
+                        if (isFavorite) {
+                            icon.classList.remove('fas');
+                            icon.classList.add('far');
+                            this.innerHTML = this.innerHTML.replace('Added to Favorites', 'Add to Favorites');
+                        } else {
+                            icon.classList.remove('far');
+                            icon.classList.add('fas');
+                            this.innerHTML = this.innerHTML.replace('Add to Favorites', 'Added to Favorites');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}
