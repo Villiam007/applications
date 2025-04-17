@@ -13,8 +13,8 @@
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'category_detail' slug=product.category.slug %}">{{ product.category.name }}</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'devices:home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'devices:category_detail' slug=product.category.slug %}">{{ product.category.name }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">{{ product.title }}</li>
             </ol>
         </nav>
@@ -53,10 +53,10 @@
                     <h1 class="product-title">{{ product.title }}</h1>
                     
                     <div class="product-meta">
-                        <span class="product-brand">Brand: <a href="{% url 'product_search' %}?brand={{ product.brand.slug }}">{{ product.brand.name }}</a></span>
-                        <span class="product-category">Category: <a href="{% url 'category_detail' slug=product.category.slug %}">{{ product.category.name }}</a></span>
+                        <span class="product-brand">Brand: <a href="{% url 'devices:product_search' %}?brand={{ product.brand.slug }}">{{ product.brand.name }}</a></span>
+                        <span class="product-category">Category: <a href="{% url 'devices:category_detail' slug=product.category.slug %}">{{ product.category.name }}</a></span>
                         {% if product.platform %}
-                        <span class="product-platform">Platform: <a href="{% url 'product_search' %}?platform={{ product.platform }}">{{ product.get_platform_display }}</a></span>
+                        <span class="product-platform">Platform: <a href="{% url 'devices:product_search' %}?platform={{ product.platform }}">{{ product.get_platform_display }}</a></span>
                         {% endif %}
                     </div>
                     
@@ -99,7 +99,7 @@
                     
                     <!-- Add to Cart Form -->
                     {% if product.stock > 0 %}
-                    <form action="{% url 'add_to_cart' product_id=product.id %}" method="post" class="add-to-cart-form">
+                    <form action="{% url 'devices:add_to_cart' product_id=product.id %}" method="post" class="add-to-cart-form">
                         {% csrf_token %}
                         <div class="quantity-selector">
                             <label for="quantity">Quantity:</label>
@@ -116,7 +116,7 @@
                             </button>
                             
                             {% if user.is_authenticated %}
-                            <a href="{% url 'add_to_favorites' product_id=product.id %}" class="btn btn-outline-danger favorite-btn" data-product-id="{{ product.id }}">
+                            <a href="{% url 'devices:add_to_favorites' product_id=product.id %}" class="btn btn-outline-danger favorite-btn" data-product-id="{{ product.id }}">
                                 <i class="{% if is_favorite %}fas{% else %}far{% endif %} fa-heart"></i> 
                                 {% if is_favorite %}Added to Favorites{% else %}Add to Favorites{% endif %}
                             </a>
@@ -209,7 +209,6 @@
                                     <div class="progress">
                                         {% with count=product.reviews.all|dictsort:"rating"|dictvalue:i|length %}
                                         {% with percentage=count|default:0|floatformat:0|default:0 %}
-                                        <div class="progress-bar" role="progressbar" style="width: {{ percentage }}%" aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
                                         {% endwith %}
                                         {% endwith %}
                                     </div>
@@ -223,7 +222,7 @@
                         {% if user.is_authenticated and review_form %}
                         <div class="review-form-container">
                             <h3>Write a Review</h3>
-                            <form action="{% url 'add_review' slug=product.slug %}" method="post" class="review-form">
+                            <form action="{% url 'devices:add_review' slug=product.slug %}" method="post" class="review-form">
                                 {% csrf_token %}
                                 
                                 <div class="rating-select">
@@ -253,7 +252,7 @@
                         </div>
                         {% elif not user.is_authenticated %}
                         <div class="review-login-prompt">
-                            <p>Please <a href="{% url 'login' %}?next={{ request.path }}">login</a> to write a review.</p>
+                            <p>Please <a href="{% url 'devices:login' %}?next={{ request.path }}">login</a> to write a review.</p>
                         </div>
                         {% endif %}
                         
@@ -302,12 +301,12 @@
                         {% if product.sale_price %}<span class="badge bg-danger">Sale</span>{% endif %}
                     </div>
                     
-                    <a href="{% url 'product_detail' slug=product.slug %}" class="product-img">
+                    <a href="{% url 'devices:product_detail' slug=product.slug %}" class="product-img">
                         <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
                     </a>
                     
                     <div class="product-info">
-                        <a href="{% url 'product_detail' slug=product.slug %}" class="product-title">{{ product.title }}</a>
+                        <a href="{% url 'devices:product_detail' slug=product.slug %}" class="product-title">{{ product.title }}</a>
                         <p class="product-category">{{ product.category.name }}</p>
                         
                         <div class="product-price">
@@ -320,7 +319,7 @@
                         </div>
                         
                         <div class="product-actions">
-                            <form action="{% url 'add_to_cart' product_id=product.id %}" method="post" class="add-to-cart-form">
+                            <form action="{% url 'devices:add_to_cart' product_id=product.id %}" method="post" class="add-to-cart-form">
                                 {% csrf_token %}
                                 <input type="hidden" name="quantity" value="1">
                                 <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
