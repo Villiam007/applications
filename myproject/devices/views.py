@@ -137,6 +137,21 @@ class ProductDetailView(DetailView):
             if not has_reviewed:
                 context['review_form'] = ReviewForm()
 
+        # Calculate rating distribution as a list
+        reviews = self.object.reviews.all()
+        total_reviews = reviews.count()
+        rating_distribution = []
+
+        for i in range(5, 0, -1):  # Iterate from 5 to 1
+            count = reviews.filter(rating=i).count()
+            percentage = (count / total_reviews) * 100 if total_reviews > 0 else 0
+            rating_distribution.append({
+                'rating': i,
+                'count': count,
+                'percentage': round(percentage, 2),  # Round to 2 decimal places
+            })
+
+        context['rating_distribution'] = rating_distribution
         return context
 
 
