@@ -15,7 +15,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {% for category in categories %}
             <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                <a href="{% url 'category_detail' slug=category.slug %}" class="block">
+                <a href="{% url 'devices:category_detail' slug=category.slug %}" class="block">
                     {% if category.image %}
                         <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-48 object-cover">
                     {% else %}
@@ -76,14 +76,14 @@
     <div class="mt-16">
         <h2 class="text-2xl font-bold mb-6">Shop by Platform</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <a href="{% url 'ios_products' %}" class="bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-lg p-6 flex items-center justify-between hover:shadow-lg transition-shadow">
+            <a href="{% url 'devices:ios_products' %}" class="bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-lg p-6 flex items-center justify-between hover:shadow-lg transition-shadow">
                 <div>
                     <h3 class="text-xl font-bold mb-2">iOS Devices</h3>
                     <p class="opacity-80">iPhones, iPads, and accessories</p>
                 </div>
                 <span class="text-xl">→</span>
             </a>
-            <a href="{% url 'windows_products' %}" class="bg-gradient-to-r from-purple-500 to-purple-700 text-white rounded-lg p-6 flex items-center justify-between hover:shadow-lg transition-shadow">
+            <a href="{% url 'devices:windows_products' %}" class="bg-gradient-to-r from-purple-500 to-purple-700 text-white rounded-lg p-6 flex items-center justify-between hover:shadow-lg transition-shadow">
                 <div>
                     <h3 class="text-xl font-bold mb-2">Windows Devices</h3>
                     <p class="opacity-80">Laptops, tablets, and PCs</p>
@@ -98,7 +98,7 @@
         <h2 class="text-2xl font-bold mb-6">All Categories</h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {% for category in categories %}
-                <a href="{% url 'category_detail' slug=category.slug %}" class="block text-center p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-sm transition-all">
+                <a href="{% url 'devices:category_detail' slug=category.slug %}" class="block text-center p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-sm transition-all">
                     <div class="text-gray-500 mb-2">
                         {% if category.icon %}
                             <i class="{{ category.icon }} text-2xl"></i>
