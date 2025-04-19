@@ -420,7 +420,7 @@ def cart_detail(request):
 
     context = {
         'cart': cart,
-        'items': items,
+        'cart_items': items,
         'subtotal': subtotal,
         'discount': discount,
         'shipping_cost': shipping_cost,
@@ -435,6 +435,11 @@ def cart_detail(request):
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     cart, created = Cart.objects.get_or_create(user=request.user)
+    cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+    if not created:
+        cart_item.quantity += 1
+        cart_item.save()
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
     quantity = int(request.POST.get('quantity', 1))
     
     # Get color selection if it's an iOS product

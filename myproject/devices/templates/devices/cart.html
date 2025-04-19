@@ -1,1 +1,95 @@
 {% extends "devices/base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Shopping Cart</h1>
+
+    {% if cart_items %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                {% for item in cart_items %}
+                    <div class="row align-items-center mb-3 pb-3 border-bottom">
+                        <div class="col-md-2">
+                            {% if item.product.images.first %}
+                                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.title }}" class="img-fluid rounded">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <h5>{{ item.product.title }}</h5>
+                            <p class="text-muted mb-0">{{ item.product.brand.name }}</p>
+                        </div>
+                        <div class="col-md-2">
+                            <form method="post" action="{% url 'devices:update_cart_item' item.id %}" class="d-flex align-items-center">
+                                {% csrf_token %}
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control form-control-sm me-2" style="width: 70px;">
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Update</button>
+                            </form>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <p class="mb-0">${{ item.total|floatformat:2 }}</p>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <form method="post" action="{% url 'devices:remove_from_cart' item.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <!-- Cart Summary -->
+                <div class="row justify-content-end">
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5 class="card-title">Cart Summary</h5>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal:</span>
+                                    <span>${{ cart_total|floatformat:2 }}</span>
+                                </div>
+                                {% if discount_amount %}
+                                <div class="d-flex justify-content-between mb-2 text-success">
+                                    <span>Discount:</span>
+                                    <span>-${{ discount_amount|floatformat:2 }}</span>
+                                </div>
+                                {% endif %}
+                                <div class="d-flex justify-content-between mb-3">
+                                    <strong>Total:</strong>
+                                    <strong>${{ final_total|floatformat:2 }}</strong>
+                                </div>
+
+                                <!-- Coupon Form -->
+                                <form method="post" action="{% url 'devices:apply_coupon' %}" class="mb-3">
+                                    {% csrf_token %}
+                                    <div class="input-group">
+                                        <input type="text" name="code" class="form-control" placeholder="Coupon code">
+                                        <button type="submit" class="btn btn-outline-secondary">Apply</button>
+                                    </div>
+                                </form>
+
+                                <!-- Checkout Button -->
+                                <a href="{% url 'devices:checkout' %}" class="btn btn-primary w-100">Proceed to Checkout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <h3>Your cart is empty</h3>
+            <p class="text-muted">Browse our products and add items to your cart.</p>
+            <a href="{% url 'devices:home' %}" class="btn btn-primary">Continue Shopping</a>
+        </div>
+    {% endif %}
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}
