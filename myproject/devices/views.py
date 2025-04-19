@@ -727,8 +727,8 @@ class LoginView(TemplateView):
 
 
 class LogoutView(DjangoLogoutView):
-    next_page = 'devices:home'
-    
+    next_page = reverse_lazy('devices:home')  # Redirect to the home page
+
     def dispatch(self, request, *args, **kwargs):
         messages.success(request, "You have been logged out successfully.")
-        return super().dispatch(request, *args, **kwargs)  
+        return super().dispatch(request, *args, **kwargs)

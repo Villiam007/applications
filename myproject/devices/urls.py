@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path, include, reverse_lazy
 from . import views
 
 app_name = 'devices'
@@ -23,7 +23,7 @@ urlpatterns = [
     
     # User Authentication & Profile Views
     path('login/', views.LoginView.as_view(), name='login'),
-    path('logout/', views.LogoutView.as_view(), name='logout'),
+    path('logout/', views.LogoutView.as_view(next_page=reverse_lazy('devices:home')), name='logout'),
     path('profile/', views.profile_view, name='profile'),
     
     # Review Views
