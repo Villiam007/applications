@@ -38,7 +38,28 @@ class Brand(models.Model):
     
     def __str__(self):
         return self.name
+    
+class Color(models.Model):
+    name = models.CharField(max_length=50)
+    hex_code = models.CharField(max_length=7, help_text="Color hex code (e.g. #FF5733)")
+    
+    def __str__(self):
+        return self.name
 
+class ProductColor(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='colors')
+    color = models.ForeignKey(Color, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='product_color_images/', blank=True, null=True, 
+                             help_text="Image showing the product in this color")
+    stock = models.PositiveIntegerField(default=0)
+    is_default = models.BooleanField(default=False)
+    
+    class Meta:
+        unique_together = ('product', 'color')
+        
+    def __str__(self):
+        return f"{self.product.title} - {self.color.name}"
+    
 class Product(models.Model):
     PLATFORM_CHOICES = [
         ('ios', 'iOS'),
@@ -83,6 +104,11 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
+    
+    @property
+    def has_color_options(self):
+        """Returns True if this is an iOS product with color options"""
+        return self.platform == 'ios' and self.colors.exists()
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
@@ -176,11 +202,14 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_items')
+    product_color = models.ForeignKey('ProductColor', on_delete=models.SET_NULL, 
+                                     null=True, blank=True)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     
     def __str__(self):
-        return f"{self.quantity} x {self.product.title} in Order {self.order.order_number}"
+        color_info = f" ({self.product_color.color.name})" if self.product_color else ""
+        return f"{self.quantity} x {self.product.title}{color_info} in Order {self.order.order_number}"
 
 class Review(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reviews")

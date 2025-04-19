@@ -112,9 +112,12 @@ class ProductDetailView(DetailView):
         context['images'] = self.object.images.all()
         context['specifications'] = self.object.specifications.all()
         context['reviews'] = self.object.reviews.all()
-        context['related_products'] = Product.objects.filter(
-            category=self.object.category
-        ).exclude(id=self.object.id)[:4]
+
+        # Add color options for iOS products
+        if self.object.platform == 'ios':
+            context['color_options'] = self.object.colors.all().select_related('color')
+
+        context['related_products'] = Product.objects.filter(category=self.object.category).exclude(id=self.object.id)[:4]
 
         # Check if product is in user's favorites
         if self.request.user.is_authenticated:
@@ -204,7 +207,14 @@ class IOSProductsView(ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        return Product.objects.filter(platform='ios').order_by('-created_at')
+        queryset = Product.objects.filter(platform='ios').order_by('-created_at')
+        
+        # Filter by color if specified
+        color = self.request.GET.get('color')
+        if color:
+            queryset = queryset.filter(colors__color__name=color).distinct()
+            
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -213,6 +223,10 @@ class IOSProductsView(ListView):
         ).distinct()
         context['brands'] = Brand.objects.filter(
             products__platform='ios'
+        ).distinct()
+
+        context['available_colors'] = Color.objects.filter(
+            productcolor__product__platform='ios'
         ).distinct()
         return context
 
@@ -403,10 +417,18 @@ def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     cart, created = Cart.objects.get_or_create(user=request.user)
     quantity = int(request.POST.get('quantity', 1))
-
+    
+    # Get color selection if it's an iOS product
+    product_color = None
+    if product.platform == 'ios' and product.has_color_options:
+        color_id = request.POST.get('color')
+        if color_id:
+            product_color = get_object_or_404(ProductColor, id=color_id, product=product)
+    
     cart_item, created = CartItem.objects.get_or_create(
         cart=cart,
         product=product,
+        product_color=product_color,  # This will be None for non-iOS products
         defaults={'quantity': quantity}
     )
 
@@ -414,7 +436,7 @@ def add_to_cart(request, product_id):
         cart_item.quantity += quantity
         cart_item.save()
 
-    if request.is_ajax():
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Modern way to check if ajax
         return JsonResponse({
             'status': 'success',
             'message': f"{product.title} added to your cart",
@@ -422,6 +444,7 @@ def add_to_cart(request, product_id):
         })
 
     messages.success(request, f"{product.title} added to your cart!")
+    return redirect('cart_detail')"{product.title} added to your cart!")
     return redirect('cart_detail')
 
 
