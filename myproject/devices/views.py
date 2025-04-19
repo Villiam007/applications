@@ -486,7 +486,7 @@ def update_cart_item(request, item_id):
             'cart_subtotal': cart_item.cart.total_price
         })
 
-    return redirect('cart_detail')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
 @login_required
@@ -503,7 +503,7 @@ def remove_from_cart(request, item_id):
         })
 
     messages.success(request, "Item removed from cart.")
-    return redirect('cart_detail')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
 @login_required
@@ -524,7 +524,7 @@ def apply_coupon(request):
                 # Check if coupon has usage limit
                 if coupon.uses_limit and coupon.times_used >= coupon.uses_limit:
                     messages.error(request, "This coupon has reached its usage limit.")
-                    return redirect('cart_detail')
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
                 # Check if cart meets minimum purchase requirement
                 cart = Cart.objects.get(user=request.user)
@@ -533,7 +533,7 @@ def apply_coupon(request):
                         request,
                         f"Your order total must be at least ${coupon.min_purchase} to use this coupon."
                     )
-                    return redirect('cart_detail')
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
                 # devices coupon in session
                 request.session['coupon_id'] = coupon.id
@@ -542,7 +542,7 @@ def apply_coupon(request):
             except Coupon.DoesNotExist:
                 messages.error(request, "Invalid coupon code.")
 
-    return redirect('cart_detail')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
 # Checkout and Order Views
@@ -561,7 +561,7 @@ class CheckoutView(LoginRequiredMixin, CreateView):
 
         if not items:
             messages.warning(self.request, "Your cart is empty!")
-            return HttpResponseRedirect(reverse('cart_detail'))
+            return self.render_to_response(self.get_context_data(form=self.get_form()))
 
         # Check for applied coupon
         coupon_id = self.request.session.get('coupon_id')
@@ -623,7 +623,7 @@ class CheckoutView(LoginRequiredMixin, CreateView):
 
         if not items:
             messages.warning(self.request, "Your cart is empty!")
-            return HttpResponseRedirect(reverse('cart_detail'))
+            return self.render_to_response(self.get_context_data(form=form))  # Stay on the current page
 
         # Calculate totals
         subtotal = sum(item.product.price * item.quantity for item in items)
