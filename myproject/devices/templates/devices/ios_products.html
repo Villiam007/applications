@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% extends "devices/base.html" %}
+    {% load static %}
+    {% block title %}iOS Products - DeviceShop{% endblock %}
+    
+    {% block extra_css %}
+    <style>
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .product-card {
+            border: 1px solid #eaeaea;
+            border-radius: 8px;
+            padding: 1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .product-image {
+            height: 200px;
+            width: 100%;
+            object-fit: contain;
+            margin-bottom: 1rem;
+        }
+        
+        .product-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        
+        .product-price {
+            font-weight: 700;
+            color: #007aff;
+            font-size: 1.2rem;
+        }
+        
+        .filter-sidebar {
+            background-color: #f7f7f7;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+        
+        .filter-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #333;
+            font-size: 1.2rem;
+        }
+        
+        .filter-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .filter-checkbox {
+            margin-right: 0.5rem;
+        }
+        
+        .filter-form {
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-btn {
+            background-color: #007aff;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .filter-btn:hover {
+            background-color: #0056b3;
+        }
+        
+        .reset-btn {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-left: 0.5rem;
+        }
+        
+        .reset-btn:hover {
+            background-color: #5a6268;
+        }
+        
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-brand {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .product-rating {
+            color: #ffc107;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .pagination a {
+            color: #007aff;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border: 1px solid #eaeaea;
+            margin: 0 0.25rem;
+            border-radius: 4px;
+        }
+        
+        .pagination a:hover {
+            background-color: #f7f7f7;
+        }
+        
+        .pagination .active {
+            background-color: #007aff;
+            color: white;
+            border-color: #007aff;
+        }
+        
+        .products-count {
+            margin-bottom: 1rem;
+            color: #6c757d;
+        }
+        
+        .sort-container {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sort-select {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #eaeaea;
+        }
+        
+        .color-option {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 1px #eaeaea;
+        }
+        
+        .color-option.active {
+            box-shadow: 0 0 0 2px #007aff;
+        }
+    </style>
+    {% endblock %}
+</head>
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <h1 class="text-center mb-4">iOS Products</h1>
+    
+    <div class="row">
+        <!-- Filter Sidebar -->
+        <div class="col-md-3 mb-4">
+            <div class="filter-sidebar">
+                <h3 class="filter-title">Filters</h3>
+                
+                <form method="get" class="filter-form">
+                    <!-- Product Type Filter -->
+                    <div class="filter-section">
+                        <h4 class="filter-section-title">Product Type</h4>
+                        
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input filter-checkbox" id="filter-imac" name="product_type" value="iMac" {% if 'iMac' in request.GET.getlist 'product_type' %}checked{% endif %}>
+                            <label class="form-check-label filter-label" for="filter-imac">iMac</label>
+                        </div>
+                        
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input filter-checkbox" id="filter-macbook-air" name="product_type" value="Macbook Air" {% if 'Macbook Air' in request.GET.getlist 'product_type' %}checked{% endif %}>
+                            <label class="form-check-label filter-label" for="filter-macbook-air">Macbook Air</label>
+                        </div>
+                        
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input filter-checkbox" id="filter-macbook-pro" name="product_type" value="Macbook Pro" {% if 'Macbook Pro' in request.GET.getlist 'product_type' %}checked{% endif %}>
+                            <label class="form-check-label filter-label" for="filter-macbook-pro">Macbook Pro</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Brand Filter -->
+                    <div class="filter-section">
+                        <h4 class="filter-section-title">Brand</h4>
+                        
+                        {% for brand in brands %}
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input filter-checkbox" id="filter-brand-{{ brand.id }}" name="brand" value="{{ brand.slug }}" {% if brand.slug in request.GET.getlist 'brand' %}checked{% endif %}>
+                            <label class="form-check-label filter-label" for="filter-brand-{{ brand.id }}">{{ brand.name }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Color Filter (if available) -->
+                    {% if available_colors %}
+                    <div class="filter-section">
+                        <h4 class="filter-section-title">Color</h4>
+                        
+                        {% for color in available_colors %}
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input filter-checkbox" id="filter-color-{{ color.id }}" name="color" value="{{ color.name }}" {% if color.name in request.GET.getlist 'color' %}checked{% endif %}>
+                            <label class="form-check-label filter-label" for="filter-color-{{ color.id }}">
+                                <span class="color-option" style="background-color: {{ color.hex_code }};"></span>
+                                {{ color.name }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Price Range Filter -->
+                    <div class="filter-section">
+                        <h4 class="filter-section-title">Price Range</h4>
+                        
+                        <div class="form-group mb-2">
+                            <label for="min-price">Min Price:</label>
+                            <input type="number" class="form-control" id="min-price" name="min_price" value="{{ request.GET.min_price }}" min="0">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="max-price">Max Price:</label>
+                            <input type="number" class="form-control" id="max-price" name="max_price" value="{{ request.GET.max_price }}" min="0">
+                        </div>
+                    </div>
+                    
+                    <!-- Filter Buttons -->
+                    <div class="filter-actions">
+                        <button type="submit" class="filter-btn">Apply Filters</button>
+                        <a href="{% url 'devices/ios_products' %}" class="reset-btn">Reset</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Products Grid -->
+        <div class="col-md-9">
+            <!-- Sort and Count Info -->
+            <div class="sort-container">
+                <div class="products-count">
+                    Showing {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ paginator.count }} products
+                </div>
+                
+                <div class="sort-options">
+                    <select class="sort-select" name="sort" onchange="location = this.value;">
+                        <option value="{% url 'ios_products' %}?sort=newest" {% if request.GET.sort == 'newest' or not request.GET.sort %}selected{% endif %}>Newest</option>
+                        <option value="{% url 'ios_products' %}?sort=price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="{% url 'ios_products' %}?sort=price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                        <option value="{% url 'ios_products' %}?sort=name" {% if request.GET.sort == 'name' %}selected{% endif %}>Name: A-Z</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Products Grid -->
+            <div class="product-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <a href="{% url 'devices/product_detail' product.slug %}">
+                        <img src="{{ product.main_image.url }}" alt="{{ product.title }}" class="product-image">
+                    </a>
+                    
+                    <div class="product-meta">
+                        <span class="product-brand">{{ product.brand.name }}</span>
+                        <div class="product-rating">
+                            <span>★</span> {{ product.average_rating|floatformat:1 }}
+                        </div>
+                    </div>
+                    
+                    <h3 class="product-title">
+                        <a href="{% url 'devices/product_detail' product.slug %}">{{ product.title }}</a>
+                    </h3>
+                    
+                    <div class="product-price">
+                        {% if product.sale_price %}
+                        <span class="original-price text-muted text-decoration-line-through me-2">${{ product.price }}</span>
+                        <span class="sale-price">${{ product.sale_price }}</span>
+                        {% else %}
+                        ${{ product.price }}
+                        {% endif %}
+                    </div>
+                    
+                    {% if product.has_color_options %}
+                    <div class="product-colors mt-2">
+                        {% for color in product.colors.all %}
+                        <span class="color-option" style="background-color: {{ color.hex_code }};" title="{{ color.name }}"></span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="product-actions mt-3">
+                        <a href="{% url 'devices/product_detail' product.slug %}" class="btn btn-primary btn-sm">View Details</a>
+                        <form method="post" action="{% url 'devices/add_to_cart' product.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-primary btn-sm">Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <p>No products found matching your criteria.</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                <a href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&laquo; First</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Previous</a>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <a class="active">{{ num }}</a>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Last &raquo;</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
