@@ -15,7 +15,7 @@
                 {% endif %}
             </div>
             {% if category.image %}
-                <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full md:w-64 h-40 object-cover rounded-lg mb-4 md:mb-0">
+                <img src="{{ category.image.url }}" alt="{{ category.name }}" style="width: 100%; height: auto; display: block;">
             {% endif %}
         </div>
     </div>
@@ -137,7 +137,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {% for product in products %}
                     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                        <a href="{% url 'product_detail' slug=product.slug %}" class="block">
+                        <a href="{% url 'devices:product_detail' slug=product.slug %}" class="block">
                             <div class="relative">
                                 {% if product.main_image %}
                                     <img src="{{ product.main_image.url }}" alt="{{ product.title }}" class="w-full h-48 object-cover">
@@ -161,20 +161,21 @@
                                 <p class="text-sm text-gray-500 mb-2">{{ product.brand.name }}</p>
                                 
                                 <div class="flex items-center mb-2">
+                                    <span class="text-sm text-gray-500 mr-2">Rating:</span>
                                     <div class="flex text-yellow-400">
                                         {% for i in "12345" %}
                                             {% if forloop.counter <= product.avg_rating %}
-                                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" width="48" height="48">
                                                     <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
                                                 </svg>
                                             {% else %}
-                                                <svg class="w-4 h-4 fill-current text-gray-300" viewBox="0 0 24 24">
+                                                <svg class="w-4 h-4 fill-current text-gray-300" viewBox="0 0 24 24" width="48" height="48">
                                                     <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
                                                 </svg>
                                             {% endif %}
                                         {% endfor %}
                                     </div>
-                                    <span class="text-xs text-gray-500 ml-1">({{ product.reviews.count }})</span>
+                                    <span class="text-xs text-gray-500 ml-1">({{ product.reviews.count }}) View</span>
                                 </div>
                                 
                                 <div class="flex items-center justify-between">
@@ -196,7 +197,7 @@
                         
                         <!-- Quick Actions -->
                         <div class="p-4 pt-0 flex items-center justify-between">
-                            <form method="post" action="{% url 'add_to_cart' product_id=product.id %}" class="ajax-form">
+                            <form method="post" action="{% url 'devices:add_to_cart' product_id=product.id %}" class="ajax-form">
                                 {% csrf_token %}
                                 <input type="hidden" name="quantity" value="1">
                                 <button type="submit" class="text-sm bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded-full transition">
