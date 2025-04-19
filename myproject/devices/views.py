@@ -411,7 +411,6 @@ def cart_detail(request):
 
     return render(request, 'devices/cart.html', context)
 
-
 @login_required
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
@@ -444,9 +443,7 @@ def add_to_cart(request, product_id):
         })
 
     messages.success(request, f"{product.title} added to your cart!")
-    return redirect('cart_detail')"{product.title} added to your cart!")
     return redirect('cart_detail')
-
 
 @login_required
 def update_cart_item(request, item_id):
@@ -649,6 +646,7 @@ class CheckoutView(LoginRequiredMixin, CreateView):
             OrderItem.objects.create(
                 order=self.object,
                 product=cart_item.product,
+                product_color=cart_item.product_color,
                 quantity=cart_item.quantity,
                 price=cart_item.product.price
             )

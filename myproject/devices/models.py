@@ -46,20 +46,6 @@ class Color(models.Model):
     def __str__(self):
         return self.name
 
-class ProductColor(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='colors')
-    color = models.ForeignKey(Color, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='product_color_images/', blank=True, null=True, 
-                             help_text="Image showing the product in this color")
-    stock = models.PositiveIntegerField(default=0)
-    is_default = models.BooleanField(default=False)
-    
-    class Meta:
-        unique_together = ('product', 'color')
-        
-    def __str__(self):
-        return f"{self.product.title} - {self.color.name}"
-    
 class Product(models.Model):
     PLATFORM_CHOICES = [
         ('ios', 'iOS'),
@@ -109,6 +95,20 @@ class Product(models.Model):
     def has_color_options(self):
         """Returns True if this is an iOS product with color options"""
         return self.platform == 'ios' and self.colors.exists()
+
+class ProductColor(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='colors')
+    color = models.ForeignKey(Color, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='product_color_images/', blank=True, null=True, 
+                             help_text="Image showing the product in this color")
+    stock = models.PositiveIntegerField(default=0)
+    is_default = models.BooleanField(default=False)
+    
+    class Meta:
+        unique_together = ('product', 'color')
+        
+    def __str__(self):
+        return f"{self.product.title} - {self.color.name}"
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
