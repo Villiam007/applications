@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
     Category, Brand, Product, ProductImage, Tag, ProductSpecification,
-    UserProfile, Order, OrderItem, Review, Favorite, Cart, CartItem, Coupon
+    UserProfile, Order, OrderItem, Review, Favorite, Cart, CartItem, Coupon,
+    Color, ProductColor
 )
 
 class ProductImageInline(admin.TabularInline):
@@ -43,6 +44,17 @@ class BrandAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ['name']
     list_filter = ['name']
+
+@admin.register(Color)
+class ColorAdmin(admin.ModelAdmin):
+    list_display = ['name', 'hex_code']
+    search_fields = ['name', 'hex_code']
+
+@admin.register(ProductColor)
+class ProductColorAdmin(admin.ModelAdmin):
+    list_display = ['product', 'color', 'stock', 'is_default']
+    list_filter = ['product', 'color', 'is_default']
+    search_fields = ['product__title', 'color__name']
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
