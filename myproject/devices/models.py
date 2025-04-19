@@ -70,6 +70,9 @@ class Product(models.Model):
     main_image = models.ImageField(upload_to='product_images/')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # เพิ่ม ManyToManyField สำหรับสี
+    colors = models.ManyToManyField('Color', blank=True, related_name='products')
     
     # For Many-to-Many relationship with tags
     tags = models.ManyToManyField('Tag', blank=True, related_name='products')
@@ -97,7 +100,7 @@ class Product(models.Model):
         return self.platform == 'ios' and self.colors.exists()
 
 class ProductColor(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='colors')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_colors')
     color = models.ForeignKey(Color, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='product_color_images/', blank=True, null=True, 
                              help_text="Image showing the product in this color")
@@ -259,19 +262,21 @@ class Cart(models.Model):
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product_color = models.ForeignKey('ProductColor', on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.PositiveIntegerField(default=1)
     added_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        unique_together = ('cart', 'product')
+        unique_together = ('cart', 'product', 'product_color')
     
     def __str__(self):
-        return f"{self.quantity} x {self.product.title} in {self.cart}"
+        color_info = f" ({self.product_color.color.name})" if self.product_color else ""
+        return f"{self.quantity} x {self.product.title}{color_info} in {self.cart}"
     
     @property
     def subtotal(self):
         return self.product.price * self.quantity
-
+    
 class Coupon(models.Model):
     code = models.CharField(max_length=50, unique=True)
     description = models.TextField(blank=True, null=True)

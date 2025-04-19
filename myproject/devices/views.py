@@ -15,7 +15,7 @@ from django.contrib.auth import login, authenticate, logout
 
 from .models import (
     Category, Brand, Product, ProductImage, Tag, ProductSpecification,
-    UserProfile, Order, OrderItem, Review, Favorite, Cart, CartItem, Coupon
+    UserProfile, Order, OrderItem, Review, Favorite, Cart, CartItem, Coupon, Color, ProductColor
 )
 from .forms import (
     ReviewForm, UserProfileForm, OrderForm, ProductSearchForm, ContactForm,

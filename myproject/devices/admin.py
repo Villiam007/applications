@@ -51,7 +51,7 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ['title', 'description', 'short_description']
     prepopulated_fields = {'slug': ('title',)}
     readonly_fields = ['created_at', 'updated_at']
-    filter_horizontal = ['tags']
+    filter_horizontal = ['tags', 'colors']
     inlines = [ProductImageInline, ProductSpecificationInline]
     fieldsets = (
         ('Basic Information', {
