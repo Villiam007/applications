@@ -12,6 +12,7 @@ from django.conf import settings
 from django.contrib.auth.views import LogoutView as DjangoLogoutView
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
+from django.views.generic.edit import FormView
 
 from .models import (
     Category, Brand, Product, ProductImage, Tag, ProductSpecification,
@@ -40,13 +41,17 @@ class AboutView(TemplateView):
     template_name = 'devices/about.html'
 
 
-class ContactView(CreateView):
+class ContactView(FormView):
     template_name = 'devices/contact.html'
     form_class = ContactForm
-    success_url = reverse_lazy('contact_success')
+    success_url = reverse_lazy('devices:home')
 
     def form_valid(self, form):
         # Process the form data (e.g., send email)
+        name = form.cleaned_data['name']
+        email = form.cleaned_data['email']
+        message = form.cleaned_data['message']
+
         messages.success(self.request, "Thank you for your message! We'll get back to you soon.")
         return super().form_valid(form)
 

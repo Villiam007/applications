@@ -8,7 +8,7 @@ urlpatterns = [
     path('', views.HomeView.as_view(), name='home'),
     path('about/', views.AboutView.as_view(), name='about'),
     path('contact/', views.ContactView.as_view(), name='contact'),
-    path('contact/success/', views.TemplateView.as_view(template_name='store/contact_success.html'), name='contact_success'),
+    path('contact/success/', views.TemplateView.as_view(template_name='devices/contact_success.html'), name='contact_success'),
     
     # Product Catalog Views
     path('categories/', views.CategoryListView.as_view(), name='category_list'),
