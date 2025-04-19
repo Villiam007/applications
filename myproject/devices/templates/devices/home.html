@@ -96,8 +96,11 @@
 
 .category-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 60px;
+  max-width: 1500px; /* กำหนดความกว้างสูงสุดของกริด */
+  margin: 0 auto; /* จัดให้อยู่ตรงกลาง */
+  justify-content: center;
 }
 
 .category-card {
