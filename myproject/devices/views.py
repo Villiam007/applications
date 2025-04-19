@@ -463,7 +463,7 @@ def add_to_cart(request, product_id):
         })
 
     messages.success(request, f"{product.title} added to your cart!")
-    return redirect('cart_detail')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required
 def update_cart_item(request, item_id):
