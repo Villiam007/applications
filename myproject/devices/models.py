@@ -98,6 +98,12 @@ class Product(models.Model):
     def has_color_options(self):
         """Returns True if this is an iOS product with color options"""
         return self.platform == 'ios' and self.colors.exists()
+    
+    @property
+    def discount_percentage(self):
+        if self.sale_price and self.price and self.price > 0:
+            return int(round((self.price - self.sale_price) / self.price * 100))
+        return 0
 
 class ProductColor(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_colors')
