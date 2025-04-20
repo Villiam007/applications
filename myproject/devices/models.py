@@ -104,6 +104,31 @@ class Product(models.Model):
         if self.sale_price and self.price and self.price > 0:
             return int(round((self.price - self.sale_price) / self.price * 100))
         return 0
+    
+    @classmethod
+    def filter_by_specifications(cls, queryset, name, values):
+        """
+        กรองสินค้าตาม specifications ที่กำหนด
+        """
+        if not values:
+            return queryset
+            
+        q_objects = Q()
+        for value in values:
+            q_objects |= Q(specifications__name=name, specifications__value=value)
+            
+        return queryset.filter(q_objects).distinct()
+    
+    @classmethod
+    def get_available_specification_values(cls, category_slug, spec_name):
+        """
+        ดึงค่าที่เป็นไปได้ทั้งหมดของ specification ที่กำหนด
+        สำหรับหมวดหมู่ที่ระบุ
+        """
+        return ProductSpecification.objects.filter(
+            product__category__slug=category_slug,
+            name=spec_name
+        ).values_list('value', flat=True).distinct()
 
 class ProductColor(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_colors')
