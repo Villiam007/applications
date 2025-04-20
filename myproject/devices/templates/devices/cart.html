@@ -45,17 +45,17 @@
                                 <h5 class="card-title">Cart Summary</h5>
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Subtotal:</span>
-                                    <span>${{ cart_total|floatformat:2 }}</span>
+                                    <span>${{ subtotal|floatformat:2 }}</span>
                                 </div>
                                 {% if discount_amount %}
                                 <div class="d-flex justify-content-between mb-2 text-success">
                                     <span>Discount:</span>
-                                    <span>-${{ discount_amount|floatformat:2 }}</span>
+                                    <span>-${{ discount|floatformat:2 }}</span>
                                 </div>
                                 {% endif %}
                                 <div class="d-flex justify-content-between mb-3">
                                     <strong>Total:</strong>
-                                    <strong>${{ final_total|floatformat:2 }}</strong>
+                                    <strong>${{ total|floatformat:2 }}</strong>
                                 </div>
 
                                 <!-- Coupon Form -->
