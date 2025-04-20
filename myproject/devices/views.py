@@ -560,7 +560,7 @@ def remove_from_favorites(request, product_id):
         })
 
     messages.success(request, "Product removed from your favorites.")
-    return redirect('favorites')
+    return redirect('devices:favorites')
 
 @login_required
 def favorites_view(request):
