@@ -1,6 +1,7 @@
 {% extends 'devices/base.html' %}
 {% load static %}
 {% load custom_filters %}
+{% load humanize %}
 
 {% block title %}{{ product.title }} - Tech Store{% endblock %}
 
@@ -743,11 +744,11 @@
 
                     <div class="product-price">
                         {% if product.sale_price %}
-                        <span class="old-price">${{ product.price }}</span>
-                        <span class="current-price">${{ product.sale_price }}</span>
+                        <span class="old-price">${{ product.price|floatformat:2|intcomma }}</span>
+                        <span class="current-price">${{ product.sale_price|floatformat:2|intcomma }}</span>
                         <span class="discount-badge">{{ product.discount_percentage }}% OFF</span>
                         {% else %}
-                        <span class="current-price">${{ product.price }}</span>
+                        <span class="current-price">${{ product.price|floatformat:2|intcomma }}</span>
                         {% endif %}
                     </div>
 
@@ -986,10 +987,10 @@
 
                         <div class="product-price">
                             {% if product.sale_price %}
-                            <span class="old-price">${{ product.price }}</span>
-                            <span class="current-price">${{ product.sale_price }}</span>
+                            <span class="old-price">${{ product.price|floatformat:2|intcomma }}</span>
+                            <span class="current-price">${{ product.sale_price|floatformat:2|intcomma }}</span>
                             {% else %}
-                            <span class="current-price">${{ product.price }}</span>
+                            <span class="current-price">${{ product.price|floatformat:2|intcomma }}</span>
                             {% endif %}
                         </div>
 

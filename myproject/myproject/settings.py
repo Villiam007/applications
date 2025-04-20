@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'devices.apps.DevicesConfig',  # Custom app for the project
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
