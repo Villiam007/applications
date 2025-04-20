@@ -486,26 +486,30 @@
     
     <!-- Featured Categories -->
     <section class="featured-categories">
-        <div class="container">
-            <h2 class="section-title">Browse Categories</h2>
-            
-            <div class="category-grid">
-                {% for category in categories %}
-                    <a href="{% url 'devices:category_detail' slug=category.slug %}" class="category-card">
-                        <div class="category-img">
-                            {% if category.image %}
-                                <img src="{{ category.image.url }}" alt="{{ category.name }}">
-                            {% else %}
-                                <img src="{% static 'images/placeholder.png' %}" alt="{{ category.name }}">
-                            {% endif %}
-                        </div>
-                        <h3>{{ category.name }}</h3>
-                    </a>
-                {% empty %}
-                    <p>No categories found.</p>
-                {% endfor %}
-            </div>
-        </div>
+      <div class="category-grid">
+        {% for category in categories %}
+            <a href="{% if category.slug == 'accessories' %}
+                        {% url 'devices:accessories' %}
+                     {% elif category.slug == 'ios' %}
+                        {% url 'devices:ios_products' %}
+                     {% elif category.slug == 'windows' %}
+                        {% url 'devices:windows_products' %}
+                     {% else %}
+                     {% endif %}" 
+               class="category-card">
+                <div class="category-img">
+                    {% if category.image %}
+                        <img src="{{ category.image.url }}" alt="{{ category.name }}">
+                    {% else %}
+                        <img src="{% static 'images/placeholder.png' %}" alt="{{ category.name }}">
+                    {% endif %}
+                </div>
+                <h3>{{ category.name }}</h3>
+            </a>
+        {% empty %}
+            <p>No categories found.</p>
+        {% endfor %}
+    </div>
     </section>
     
     <!-- Featured Products -->
