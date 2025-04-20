@@ -1069,8 +1069,8 @@
                 const productId = this.getAttribute('data-product-id');
                 const isFavorite = this.querySelector('i').classList.contains('fas');
                 const url = isFavorite 
-                    ? `/remove-from-favorites/${productId}/` 
-                    : `/add-to-favorites/${productId}/`;
+                    ? `/favorites/remove/${productId}/` 
+                    : `/favorites/add/${productId}/`;
                 
                 fetch(url, {
                     method: 'GET',

@@ -269,7 +269,7 @@ class IOSProductsView(ListView):
         for product in context['products']:
             if product.sale_price and product.price > 0:
                 discount = ((product.price - product.sale_price) / product.price) * 100
-                product.discount_percentage = int(discount)
+                # product.discount_percentage = int(discount)
         context['categories'] = Category.objects.filter(
             products__platform='ios'
         ).distinct()
