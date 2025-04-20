@@ -778,7 +778,7 @@
                             </button>
                             
                             {% if user.is_authenticated %}
-                            <a href="{% url 'devices:add_to_favorites' product_id=product.id %}" class="btn btn-outline-danger favorite-btn" data-product-id="{{ product.id }}">
+                            <a href="{% url 'devices:add_to_favorites' product_id=product.id %}" class="btn btn-outline-danger favorite-btn" data-product-id="{{ product.id }}" data-add-url="{% url 'devices:add_to_favorites' product_id=product.id %}" data-remove-url="{% url 'devices:remove_from_favorites' product_id=product.id %}">>
                                 <i class="{% if is_favorite %}fas{% else %}far{% endif %} fa-heart"></i> 
                                 {% if is_favorite %}Added to Favorites{% else %}Add to Favorites{% endif %}
                             </a>
@@ -1068,9 +1068,9 @@
                 
                 const productId = this.getAttribute('data-product-id');
                 const isFavorite = this.querySelector('i').classList.contains('fas');
-                const url = isFavorite 
-                    ? `/remove-from-favorites/${productId}/` 
-                    : `/add-to-favorites/${productId}/`;
+                const addUrl = favoriteBtn.getAttribute('data-add-url');
+                const removeUrl = favoriteBtn.getAttribute('data-remove-url');
+                const url = isFavorite ? removeUrl : addUrl;
                 
                 fetch(url, {
                     method: 'GET',
