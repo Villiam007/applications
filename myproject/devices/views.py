@@ -62,6 +62,20 @@ class CategoryListView(ListView):
     template_name = 'devices/category_list.html'
     context_object_name = 'categories'
 
+    def get_queryset(self):
+        queryset = Product.objects.all().order_by('-created_at')
+        
+        # กรองตามหมวดหมู่
+        category_slug = self.request.GET.get('category')
+        if category_slug:
+            queryset = queryset.filter(category__slug=category_slug)
+        
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()  # ส่งหมวดหมู่ทั้งหมดไปยังเทมเพลต
+        return context
 
 class CategoryDetailView(DetailView):
     model = Category
@@ -229,15 +243,33 @@ class IOSProductsView(ListView):
     def get_queryset(self):
         queryset = Product.objects.filter(platform='ios').order_by('-created_at')
         
-        # Filter by color if specified
+        # กรองตามหมวดหมู่
+        category_slug = self.request.GET.get('category')
+        if category_slug:
+            queryset = queryset.filter(category__slug=category_slug)
+        
+        # กรองตามสี
         color = self.request.GET.get('color')
         if color:
-            queryset = queryset.filter(colors__color__name=color).distinct()
-            
+            queryset = queryset.filter(colors__name=color)
+        
+        # จัดเรียงสินค้า
+        sort = self.request.GET.get('sort')
+        if sort == 'price-low':
+            queryset = queryset.order_by('price')
+        elif sort == 'price-high':
+            queryset = queryset.order_by('-price')
+        elif sort == 'best-selling':
+            queryset = queryset.order_by('-sales')
+        
         return queryset
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        for product in context['products']:
+            if product.sale_price and product.price > 0:
+                discount = ((product.price - product.sale_price) / product.price) * 100
+                product.discount_percentage = int(discount)
         context['categories'] = Category.objects.filter(
             products__platform='ios'
         ).distinct()
