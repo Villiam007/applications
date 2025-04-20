@@ -522,13 +522,13 @@ class AddReviewView(LoginRequiredMixin, CreateView):
 
         if existing_review:
             messages.warning(self.request, "You have already reviewed this product.")
-            return HttpResponseRedirect(reverse('product_detail', args=[product.slug]))
+            return HttpResponseRedirect(reverse('devices:product_detail', args=[product.slug]))
 
         messages.success(self.request, "Your review has been added successfully!")
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('product_detail', args=[self.kwargs['slug']])
+        return reverse('devices:product_detail', args=[self.kwargs['slug']])
 
 
 # Favorites Views
@@ -545,7 +545,7 @@ def add_to_favorites(request, product_id):
         })
 
     messages.success(request, "Product added to your favorites!")
-    return redirect('product_detail', slug=product.slug)
+    return redirect('devices:product_detail', slug=product.slug)
 
 
 @login_required

@@ -938,8 +938,7 @@
                             <div class="review-item">
                                 <div class="review-header">
                                     <div class="review-user">
-                                        <span class="reviewer-name">{{
-                                            review.user.get_full_name|default:review.user.username }}</span>
+                                        <span class="reviewer-name">{{review.user.get_full_name|default:review.user.username }}</span>
                                         <span class="review-date">{{ review.created_at|date:"F d, Y" }}</span>
                                     </div>
                                     <div class="review-rating">
@@ -982,8 +981,7 @@
                     </a>
 
                     <div class="product-info">
-                        <a href="{% url 'devices:product_detail' slug=product.slug %}" class="product-title">{{
-                            product.title }}</a>
+                        <a href="{% url 'devices:product_detail' slug=product.slug %}" class="product-title">{{product.title }}</a>
                         <p class="product-category">{{ product.category.name }}</p>
 
                         <div class="product-price">
