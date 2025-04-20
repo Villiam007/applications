@@ -540,7 +540,7 @@
             <!-- Filter by Price - Always present -->
             <div class="filter-group">
                 <h3>Price Range</h3>
-                <input type="range" min="0" max="5000" value="{{ request.GET.price|default:5000 }}" class="price-slider"
+                <input type="range" min="0" max="300000" value="{{ request.GET.price|default:5000 }}" class="price-slider"
                     id="price-slider">
                 <div class="price-range">Up to $<span id="price-value">{{ request.GET.price|default:5000 }}</span></div>
             </div>
@@ -667,12 +667,10 @@
                     <div class="product-price">
                         {% if product.sale_price %}
                         <span
-                            style="text-decoration: line-through; color: #999; font-size: 14px; margin-right: 5px;">${{
-                            product.price }}</span>
+                            style="text-decoration: line-through; color: #999; font-size: 14px; margin-right: 5px;">${{product.price }}</span>
                         <span style="color: #e53935;">${{ product.sale_price }}</span>
                         <span
-                            style="background-color: #e53935; color: white; font-size: 12px; padding: 2px 5px; border-radius: 3px; margin-left: 5px;">-{{
-                            product.discount_percentage }}%</span>
+                            style="background-color: #e53935; color: white; font-size: 12px; padding: 2px 5px; border-radius: 3px; margin-left: 5px;">-{{product.discount_percentage }}%</span>
                         {% else %}
                         ${{ product.price }}
                         {% endif %}
