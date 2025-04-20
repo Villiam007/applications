@@ -1,0 +1,47 @@
+{% extends "devices/base.html" %}
+
+{% block content %}
+    <section class="accessories-section">
+        <div class="container">
+            <h1 class="section-title">Accessories</h1>
+            
+            <div class="product-grid">
+                {% for product in accessories %}
+                    <div class="product-card">
+                        <a href="{% url 'devices:product_detail' slug=product.slug %}" class="product-img">
+                            <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+                        </a>
+                        <div class="product-info">
+                            <h3 class="product-title">{{ product.title }}</h3>
+                            <p class="product-price">${{ product.price }}</p>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No accessories found.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block extra_css %}
+    <style>
+        .accessories-section {
+            padding: 20px;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .product-card {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        console.log("Accessories page loaded!");
+    </script>
+{% endblock %}

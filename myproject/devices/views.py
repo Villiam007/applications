@@ -12,6 +12,7 @@ from django.conf import settings
 from django.contrib.auth.views import LogoutView as DjangoLogoutView
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
+from django.views.generic.edit import FormView
 
 from .models import (
     Category, Brand, Product, ProductImage, Tag, ProductSpecification,
@@ -40,13 +41,17 @@ class AboutView(TemplateView):
     template_name = 'devices/about.html'
 
 
-class ContactView(CreateView):
+class ContactView(FormView):
     template_name = 'devices/contact.html'
     form_class = ContactForm
-    success_url = reverse_lazy('contact_success')
+    success_url = reverse_lazy('devices:home')
 
     def form_valid(self, form):
         # Process the form data (e.g., send email)
+        name = form.cleaned_data['name']
+        email = form.cleaned_data['email']
+        message = form.cleaned_data['message']
+
         messages.success(self.request, "Thank you for your message! We'll get back to you soon.")
         return super().form_valid(form)
 
@@ -132,6 +137,21 @@ class ProductDetailView(DetailView):
             if not has_reviewed:
                 context['review_form'] = ReviewForm()
 
+        # Calculate rating distribution as a list
+        reviews = self.object.reviews.all()
+        total_reviews = reviews.count()
+        rating_distribution = []
+
+        for i in range(5, 0, -1):  # Iterate from 5 to 1
+            count = reviews.filter(rating=i).count()
+            percentage = (count / total_reviews) * 100 if total_reviews > 0 else 0
+            rating_distribution.append({
+                'rating': i,
+                'count': count,
+                'percentage': round(percentage, 2),  # Round to 2 decimal places
+            })
+
+        context['rating_distribution'] = rating_distribution
         return context
 
 
@@ -400,7 +420,7 @@ def cart_detail(request):
 
     context = {
         'cart': cart,
-        'items': items,
+        'cart_items': items,
         'subtotal': subtotal,
         'discount': discount,
         'shipping_cost': shipping_cost,
@@ -415,6 +435,11 @@ def cart_detail(request):
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     cart, created = Cart.objects.get_or_create(user=request.user)
+    cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+    if not created:
+        cart_item.quantity += 1
+        cart_item.save()
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
     quantity = int(request.POST.get('quantity', 1))
     
     # Get color selection if it's an iOS product
@@ -443,7 +468,7 @@ def add_to_cart(request, product_id):
         })
 
     messages.success(request, f"{product.title} added to your cart!")
-    return redirect('cart_detail')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required
 def update_cart_item(request, item_id):
@@ -466,7 +491,7 @@ def update_cart_item(request, item_id):
             'cart_subtotal': cart_item.cart.total_price
         })
 
-    return redirect('cart_detail')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
 @login_required
@@ -483,7 +508,7 @@ def remove_from_cart(request, item_id):
         })
 
     messages.success(request, "Item removed from cart.")
-    return redirect('cart_detail')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
 @login_required
@@ -504,7 +529,7 @@ def apply_coupon(request):
                 # Check if coupon has usage limit
                 if coupon.uses_limit and coupon.times_used >= coupon.uses_limit:
                     messages.error(request, "This coupon has reached its usage limit.")
-                    return redirect('cart_detail')
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
                 # Check if cart meets minimum purchase requirement
                 cart = Cart.objects.get(user=request.user)
@@ -513,7 +538,7 @@ def apply_coupon(request):
                         request,
                         f"Your order total must be at least ${coupon.min_purchase} to use this coupon."
                     )
-                    return redirect('cart_detail')
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
                 # devices coupon in session
                 request.session['coupon_id'] = coupon.id
@@ -522,7 +547,7 @@ def apply_coupon(request):
             except Coupon.DoesNotExist:
                 messages.error(request, "Invalid coupon code.")
 
-    return redirect('cart_detail')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
 # Checkout and Order Views
@@ -541,7 +566,7 @@ class CheckoutView(LoginRequiredMixin, CreateView):
 
         if not items:
             messages.warning(self.request, "Your cart is empty!")
-            return HttpResponseRedirect(reverse('cart_detail'))
+            return self.render_to_response(self.get_context_data(form=self.get_form()))
 
         # Check for applied coupon
         coupon_id = self.request.session.get('coupon_id')
@@ -603,7 +628,7 @@ class CheckoutView(LoginRequiredMixin, CreateView):
 
         if not items:
             messages.warning(self.request, "Your cart is empty!")
-            return HttpResponseRedirect(reverse('cart_detail'))
+            return self.render_to_response(self.get_context_data(form=form))  # Stay on the current page
 
         # Calculate totals
         subtotal = sum(item.product.price * item.quantity for item in items)
@@ -727,8 +752,8 @@ class LoginView(TemplateView):
 
 
 class LogoutView(DjangoLogoutView):
-    next_page = 'devices:home'
-    
+    next_page = reverse_lazy('devices:home')  # Redirect to the home page
+
     def dispatch(self, request, *args, **kwargs):
         messages.success(request, "You have been logged out successfully.")
-        return super().dispatch(request, *args, **kwargs)  
+        return super().dispatch(request, *args, **kwargs)

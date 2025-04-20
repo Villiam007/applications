@@ -1,5 +1,6 @@
 {% extends 'devices/base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}{{ product.title }} - Tech Store{% endblock %}
 
@@ -575,6 +576,7 @@
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
 }
 
@@ -863,16 +865,12 @@
                             </div>
                             
                             <div class="rating-distribution">
-                                {% for i in "54321" %}
+                                {% for rating in rating_distribution %}
                                 <div class="rating-bar">
-                                    <div class="rating-label">{{ i }} <i class="fas fa-star"></i></div>
+                                    <div class="rating-label">{{ rating.rating }} <i class="fas fa-star"></i></div>
                                     <div class="progress">
-                                        {% with count=product.reviews.all|dictsort:"rating"|dictvalue:i|length %}
-                                        {% with percentage=count|default:0|floatformat:0|default:0 %}
-                                        {% endwith %}
-                                        {% endwith %}
-                                    </div>
-                                    <div class="rating-count">{{ product.reviews.all|dictsort:"rating"|dictvalue:i|length|default:0 }}</div>
+                                        <div class="progress-bar" data-percentage="{{ rating.percentage|default:0 }}"></div>                                    </div>
+                                    <div class="rating-count">{{ rating.count }}</div>
                                 </div>
                                 {% endfor %}
                             </div>

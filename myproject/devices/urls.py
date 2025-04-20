@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path, include, reverse_lazy
 from . import views
 
 app_name = 'devices'
@@ -8,7 +8,7 @@ urlpatterns = [
     path('', views.HomeView.as_view(), name='home'),
     path('about/', views.AboutView.as_view(), name='about'),
     path('contact/', views.ContactView.as_view(), name='contact'),
-    path('contact/success/', views.TemplateView.as_view(template_name='store/contact_success.html'), name='contact_success'),
+    path('contact/success/', views.TemplateView.as_view(template_name='devices/contact_success.html'), name='contact_success'),
     
     # Product Catalog Views
     path('categories/', views.CategoryListView.as_view(), name='category_list'),
@@ -23,7 +23,7 @@ urlpatterns = [
     
     # User Authentication & Profile Views
     path('login/', views.LoginView.as_view(), name='login'),
-    path('logout/', views.LogoutView.as_view(), name='logout'),
+    path('logout/', views.LogoutView.as_view(next_page=reverse_lazy('devices:home')), name='logout'),
     path('profile/', views.profile_view, name='profile'),
     
     # Review Views
