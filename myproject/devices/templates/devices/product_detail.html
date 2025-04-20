@@ -712,6 +712,7 @@
             <!-- Product Info -->
             <div class="col-lg-6">
                 <div class="product-info">
+                    <div id="favorite-message"></div>
                     <h1 class="product-title">{{ product.title }}</h1>
                     
                     <div class="product-meta">
@@ -1092,6 +1093,17 @@
                             icon.classList.remove('far');
                             icon.classList.add('fas');
                             this.innerHTML = this.innerHTML.replace('Add to Favorites', 'Added to Favorites');
+                        }
+
+                        // Show the message
+                        const msgContainer = document.getElementById('favorite-message');
+                        if (msgContainer && data.message) {
+                            msgContainer.innerHTML = `
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    ${data.message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            `;
                         }
                     }
                 })
