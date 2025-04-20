@@ -277,6 +277,10 @@ class CartItem(models.Model):
     def subtotal(self):
         return self.product.price * self.quantity
     
+    @property
+    def total(self):
+        return self.product.price * self.quantity
+    
 class Coupon(models.Model):
     code = models.CharField(max_length=50, unique=True)
     description = models.TextField(blank=True, null=True)
