@@ -483,7 +483,7 @@ def update_cart_item(request, item_id):
         cart_item.delete()
         messages.success(request, "Item removed from cart.")
 
-    if request.is_ajax():
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({
             'status': 'success',
             'cart_total': cart_item.cart.total_items,
@@ -499,7 +499,7 @@ def remove_from_cart(request, item_id):
     cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
     cart_item.delete()
 
-    if request.is_ajax():
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({
             'status': 'success',
             'message': 'Item removed from cart',
