@@ -621,7 +621,7 @@ def add_to_cart(request, product_id):
     if not created:
         cart_item.quantity += 1
         cart_item.save()
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    # return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
     quantity = int(request.POST.get('quantity', 1))
     
     # Get color selection if it's an iOS product
@@ -931,6 +931,9 @@ class LoginView(TemplateView):
         
         messages.error(request, "Invalid username or password.")
         return render(request, self.template_name, {'form': form})
+    
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
 
 
 class LogoutView(DjangoLogoutView):
