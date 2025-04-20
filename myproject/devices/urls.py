@@ -30,6 +30,7 @@ urlpatterns = [
     path('product/<slug:slug>/add-review/', views.AddReviewView.as_view(), name='add_review'),
     
     # Favorites Views
+    path('favorites/', views.favorites_view, name='favorites'),
     path('favorites/add/<int:product_id>/', views.add_to_favorites, name='add_to_favorites'),
     path('favorites/remove/<int:product_id>/', views.remove_from_favorites, name='remove_from_favorites'),
     

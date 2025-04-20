@@ -560,7 +560,12 @@ def remove_from_favorites(request, product_id):
         })
 
     messages.success(request, "Product removed from your favorites.")
-    return redirect('profile')
+    return redirect('favorites')
+
+@login_required
+def favorites_view(request):
+    favorites = Favorite.objects.filter(user=request.user).select_related('product')
+    return render(request, 'devices/favorites.html', {'favorites': favorites})
 
 
 # Cart Views

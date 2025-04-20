@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinLengthValidator, MinValueValidator, MaxValueValidator
+from django.db.models import Q
 from django.conf import settings
 from django.utils.text import slugify
 

@@ -606,6 +606,7 @@
                             <ul class="dropdown-menu">
                                 <li><a href="{% url 'devices:profile' %}">My Profile</a></li>
                                 <li><a href="{% url 'devices:order_list' %}">My Orders</a></li>
+                                <li><a href="{% url 'devices:favorites' %}">My Favorites</a></li>
                                 <li>
                                   <form action="{% url 'devices:logout' %}" method="post" style="display: inline;">
                                     {% csrf_token %}
