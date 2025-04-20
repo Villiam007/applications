@@ -1,1 +1,707 @@
 {% extends "devices/base.html" %}
+{% load static %}
+
+{% block title %}Windows Products - DeviceShop{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Base styles */
+    body,
+    html {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f5f7;
+    }
+
+    /* Component category navigation */
+    .category-nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        overflow-x: auto;
+        background-color: #fff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        padding: 10px;
+    }
+
+    .category-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px;
+        min-width: 100px;
+        text-align: center;
+        color: #333;
+        text-decoration: none;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s;
+    }
+
+    .category-item:hover {
+        background-color: #f0f0f0;
+        border-bottom-color: #0070c9;
+    }
+
+    .category-item.active {
+        border-bottom-color: #0070c9;
+        font-weight: bold;
+    }
+
+    .category-icon {
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+
+    /* Products grid layout */
+    .page-container {
+        display: flex;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+
+    .sidebar {
+        width: 250px;
+        flex-shrink: 0;
+        margin-right: 20px;
+    }
+
+    .main-content {
+        flex-grow: 1;
+    }
+
+    /* Products grid */
+    .products-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-image {
+        height: 200px;
+        width: 100%;
+        object-fit: contain;
+        background-color: #f9f9f9;
+        padding: 10px;
+    }
+
+    .product-info {
+        padding: 15px;
+    }
+
+    .product-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+        font-size: 16px;
+    }
+
+    .product-brand {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .product-price {
+        font-weight: bold;
+        font-size: 18px;
+        color: #0070c9;
+    }
+
+    /* Filter sidebar */
+    .filter-section {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-title {
+        font-weight: 600;
+        margin-bottom: 10px;
+        font-size: 16px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 8px;
+    }
+
+    .filter-group {
+        margin-bottom: 15px;
+    }
+
+    .filter-group h3 {
+        font-size: 14px;
+        margin-bottom: 8px;
+        color: #555;
+    }
+
+    .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        margin-right: 8px;
+    }
+
+    /* Responsive layout */
+    @media (max-width: 768px) {
+        .page-container {
+            flex-direction: column;
+        }
+
+        .sidebar {
+            width: 100%;
+            margin-right: 0;
+            margin-bottom: 20px;
+        }
+
+        .category-nav {
+            justify-content: start;
+        }
+
+        .products-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+    }
+
+    .show-more {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+
+    /* Filter button */
+    .filter-button {
+        background-color: #0070c9;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    .filter-button:hover {
+        background-color: #005ea3;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ใส่ script นี้ไว้ที่ส่วนท้ายของไฟล์ template หรือในไฟล์ JavaScript แยก
+    function applyFilters() {
+        // สร้าง URL พารามิเตอร์จากตัวกรองที่เลือก
+        let url = new URL(window.location.href);
+        let params = new URLSearchParams(url.search);
+
+        // เก็บค่า category และข้อมูลอื่นที่มีอยู่แล้ว
+        const category = params.get('category');
+        if (category) {
+            params.set('category', category);
+        }
+
+        // ดึงค่า brand ที่เลือกทั้งหมด
+        const selectedBrands = [];
+        document.querySelectorAll('input[name="brand"]:checked').forEach(el => {
+            selectedBrands.push(el.value);
+        });
+
+        // ลบ params เดิมก่อนเพิ่มค่าใหม่
+        params.delete('brand');
+        selectedBrands.forEach(brand => {
+            params.append('brand', brand);
+        });
+
+        // ดึงค่า price range
+        const priceValue = document.getElementById('price-slider').value;
+        params.set('price', priceValue);
+
+        // เพิ่มตัวกรองตาม category
+        if (category === 'gpu') {
+            const selectedGpuTypes = [];
+            document.querySelectorAll('input[name="gpu_type"]:checked').forEach(el => {
+                selectedGpuTypes.push(el.value);
+            });
+            params.delete('gpu_type');
+            selectedGpuTypes.forEach(type => {
+                params.append('gpu_type', type);
+            });
+        }
+
+        if (category === 'ram') {
+            const selectedMemoryTypes = [];
+            document.querySelectorAll('input[name="memory_type"]:checked').forEach(el => {
+                selectedMemoryTypes.push(el.value);
+            });
+            params.delete('memory_type');
+            selectedMemoryTypes.forEach(type => {
+                params.append('memory_type', type);
+            });
+
+            const selectedMemorySizes = [];
+            document.querySelectorAll('input[name="memory_size"]:checked').forEach(el => {
+                selectedMemorySizes.push(el.value);
+            });
+            params.delete('memory_size');
+            selectedMemorySizes.forEach(size => {
+                params.append('memory_size', size);
+            });
+        }
+
+        if (category === 'ssd') {
+            const selectedSsdTypes = [];
+            document.querySelectorAll('input[name="ssd_type"]:checked').forEach(el => {
+                selectedSsdTypes.push(el.value);
+            });
+            params.delete('ssd_type');
+            selectedSsdTypes.forEach(type => {
+                params.append('ssd_type', type);
+            });
+
+            const selectedCapacities = [];
+            document.querySelectorAll('input[name="capacity"]:checked').forEach(el => {
+                selectedCapacities.push(el.value);
+            });
+            params.delete('capacity');
+            selectedCapacities.forEach(capacity => {
+                params.append('capacity', capacity);
+            });
+        }
+
+        if (category === 'hdd') {
+            const selectedCapacities = [];
+            document.querySelectorAll('input[name="capacity"]:checked').forEach(el => {
+                selectedCapacities.push(el.value);
+            });
+            params.delete('capacity');
+            selectedCapacities.forEach(capacity => {
+                params.append('capacity', capacity);
+            });
+        }
+
+        // รีเซ็ตหน้าเพจเป็น 1 เมื่อใช้ตัวกรอง
+        params.delete('page');
+
+        // สร้าง URL ใหม่และเปลี่ยนหน้า
+        window.location.href = url.pathname + '?' + params.toString();
+    }
+
+    // เพิ่ม event listener สำหรับ price slider
+    document.addEventListener('DOMContentLoaded', function () {
+        const priceSlider = document.getElementById('price-slider');
+        const priceValue = document.getElementById('price-value');
+
+        if (priceSlider && priceValue) {
+            priceSlider.addEventListener('input', function () {
+                priceValue.textContent = this.value;
+            });
+        }
+    });
+    // Add active class to current category
+    document.addEventListener('DOMContentLoaded', function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const category = urlParams.get('category');
+
+        if (category) {
+            const activeLink = document.querySelector(`.category-item[href="?category=${category}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
+        // Price range slider
+        const priceSlider = document.getElementById('price-slider');
+        const priceValue = document.getElementById('price-value');
+
+        if (priceSlider && priceValue) {
+            priceSlider.addEventListener('input', function () {
+                priceValue.textContent = this.value;
+            });
+        }
+    });
+
+    // Function to apply filters
+    function applyFilters() {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Get current category
+        const category = urlParams.get('category');
+
+        // Build new URL with filters
+        let newUrl = '?';
+        if (category) {
+            newUrl += `category=${category}&`;
+        }
+
+        // Add brand filters
+        const brandCheckboxes = document.querySelectorAll('input[name="brand"]:checked');
+        brandCheckboxes.forEach(checkbox => {
+            newUrl += `brand=${checkbox.value}&`;
+        });
+
+        // Add price filter
+        const priceSlider = document.getElementById('price-slider');
+        if (priceSlider) {
+            newUrl += `price=${priceSlider.value}&`;
+        }
+
+        // Category specific filters
+        if (category === 'gpu') {
+            const gpuTypeCheckboxes = document.querySelectorAll('input[name="gpu_type"]:checked');
+            gpuTypeCheckboxes.forEach(checkbox => {
+                newUrl += `gpu_type=${checkbox.value}&`;
+            });
+        }
+
+        if (category === 'ram') {
+            const memoryTypeCheckboxes = document.querySelectorAll('input[name="memory_type"]:checked');
+            memoryTypeCheckboxes.forEach(checkbox => {
+                newUrl += `memory_type=${checkbox.value}&`;
+            });
+
+            const memorySizeCheckboxes = document.querySelectorAll('input[name="memory_size"]:checked');
+            memorySizeCheckboxes.forEach(checkbox => {
+                newUrl += `memory_size=${checkbox.value}&`;
+            });
+        }
+
+        if (category === 'ssd') {
+            const ssdTypeCheckboxes = document.querySelectorAll('input[name="ssd_type"]:checked');
+            ssdTypeCheckboxes.forEach(checkbox => {
+                newUrl += `ssd_type=${checkbox.value}&`;
+            });
+
+            const capacityCheckboxes = document.querySelectorAll('input[name="capacity"]:checked');
+            capacityCheckboxes.forEach(checkbox => {
+                newUrl += `capacity=${checkbox.value}&`;
+            });
+        }
+
+        if (category === 'hdd') {
+            const capacityCheckboxes = document.querySelectorAll('input[name="capacity"]:checked');
+            capacityCheckboxes.forEach(checkbox => {
+                newUrl += `capacity=${checkbox.value}&`;
+            });
+        }
+
+        // Remove trailing '&' if exists
+        if (newUrl.endsWith('&')) {
+            newUrl = newUrl.slice(0, -1);
+        }
+
+        // Navigate to new URL
+        window.location.href = newUrl;
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- Component Category Navigation -->
+<div class="category-nav">
+    <a href="?category=laptop" class="category-item">
+        <div class="category-icon">
+            <i class="fa-solid fa-laptop"></i>
+        </div>
+        Laptop
+    </a>
+    <a href="?category=cpu" class="category-item">
+        <div class="category-icon">
+            <i class="fas fa-microchip"></i>
+        </div>
+        CPU
+    </a>
+    <a href="?category=water-cooling" class="category-item">
+        <div class="category-icon">
+            <i class="fas fa-tint"></i>
+        </div>
+        Water Cooler
+    </a>
+    <a href="?category=air-cooling" class="category-item">
+        <div class="category-icon">
+            <i class="fas fa-wind"></i>
+        </div>
+        Air Cooling
+    </a>
+    <a href="?category=motherboard" class="category-item">
+        <div class="category-icon">
+            <i class="fas fa-server"></i>
+        </div>
+        Motherboard
+    </a>
+    <a href="?category=gpu" class="category-item">
+        <div class="category-icon">
+            <i class="fas fa-money-bill"></i>
+        </div>
+        Graphics Card
+    </a>
+    <a href="?category=ram" class="category-item">
+        <div class="category-icon">
+            <i class="fas fa-memory"></i>
+        </div>
+        RAM
+    </a>
+    <a href="?category=ssd" class="category-item">
+        <div class="category-icon">
+            <i class="fas fa-hdd"></i>
+        </div>
+        SSD
+    </a>
+    <a href="?category=hdd" class="category-item">
+        <div class="category-icon">
+            <i class="fas fa-database"></i>
+        </div>
+        Hard Disk
+    </a>
+    <a href="?category=case" class="category-item">
+        <div class="category-icon">
+            <i class="fa-solid fa-window-maximize"></i>
+        </div>
+        Case
+    </a>
+    <a href="?category=psu" class="category-item">
+        <div class="category-icon">
+            <i class="fas fa-plug"></i>
+        </div>
+        Power Supply
+    </a>
+    <a href="?category=monitor" class="category-item">
+        <div class="category-icon">
+            <i class="fas fa-tv"></i>
+        </div>
+        Monitor
+    </a>
+    <a href="?category=fan" class="category-item">
+        <div class="category-icon">
+            <i class="fas fa-fan"></i>
+        </div>
+        Fan
+    </a>
+    <a href="?show-all=true" class="category-item show-more">
+        <div class="category-icon">
+            <i class="fas fa-ellipsis-h"></i>
+        </div>
+        SHOW MORE
+    </a>
+</div>
+
+<div class="page-container">
+    <!-- Filter Sidebar -->
+    <div class="sidebar">
+        <div class="filter-section">
+            <h2 class="filter-title">Filters</h2>
+
+            <!-- Filter by Brand - Always present -->
+            <div class="filter-group">
+                <h3>Brands</h3>
+                <div class="checkbox-group">
+                    {% for brand in available_brands %}
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="brand-{{ brand.slug }}" name="brand" value="{{ brand.slug }}" 
+                        {% if brand.slug in selected_brands %}checked{% endif %}>
+                        <label for="brand-{{ brand.slug }}">{{ brand.name }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Filter by Price - Always present -->
+            <div class="filter-group">
+                <h3>Price Range</h3>
+                <input type="range" min="0" max="5000" value="{{ request.GET.price|default:5000 }}" class="price-slider"
+                    id="price-slider">
+                <div class="price-range">Up to $<span id="price-value">{{ request.GET.price|default:5000 }}</span></div>
+            </div>
+
+            <!-- Category specific filters -->
+            {% if request.GET.category == 'gpu' %}
+            <div class="filter-group">
+                <h3>GPU Type</h3>
+                <div class="checkbox-group">
+                    {% for gpu_type in gpu_types %}
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="gpu-type-{{ gpu_type|slugify }}" name="gpu_type"
+                            value="{{ gpu_type }}" {% if gpu_type in selected_gpu_types %}checked{% endif %}>
+                        <label for="gpu-type-{{ gpu_type|slugify }}">{{ gpu_type }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if request.GET.category == 'ram' %}
+            <div class="filter-group">
+                <h3>Memory Type</h3>
+                <div class="checkbox-group">
+                    {% for memory_type in memory_types %}
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="memory-type-{{ memory_type|slugify }}" name="memory_type"
+                            value="{{ memory_type }}" {% if memory_type in selected_memory_types %}checked{% endif %}>
+                        <label for="memory-type-{{ memory_type|slugify }}">{{ memory_type }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Memory Size filter -->
+            <div class="filter-group">
+                <h3>Memory Size</h3>
+                <div class="checkbox-group">
+                    {% for memory_size in memory_sizes %}
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="memory-size-{{ memory_size|slugify }}" name="memory_size"
+                            value="{{ memory_size }}" {% if memory_size in selected_memory_sizes %}checked{% endif %}>
+                        <label for="memory-size-{{ memory_size|slugify }}">{{ memory_size }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- แก้ไขส่วนของ SSD -->
+            {% if request.GET.category == 'ssd' %}
+            <div class="filter-group">
+                <h3>Interface Type</h3>
+                <div class="checkbox-group">
+                    {% for ssd_type in ssd_types %}
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="ssd-type-{{ ssd_type|slugify }}" name="ssd_type"
+                            value="{{ ssd_type }}" {% if ssd_type in selected_ssd_types %}checked{% endif %}>
+                        <label for="ssd-type-{{ ssd_type|slugify }}">{{ ssd_type }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Capacity filter -->
+            <div class="filter-group">
+                <h3>Capacity</h3>
+                <div class="checkbox-group">
+                    {% for capacity in capacities %}
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="capacity-{{ capacity|slugify }}" name="capacity"
+                            value="{{ capacity }}" {% if capacity in selected_capacities %}checked{% endif %}>
+                        <label for="capacity-{{ capacity|slugify }}">{{ capacity }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- HDD Capacity filter -->
+            {% if request.GET.category == 'hdd' %}
+            <div class="filter-group">
+                <h3>Capacity</h3>
+                <div class="checkbox-group">
+                    {% for capacity in capacities %}
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="capacity-{{ capacity|slugify }}" name="capacity"
+                            value="{{ capacity }}" {% if capacity in selected_capacities %}checked{% endif %}>
+                        <label for="capacity-{{ capacity|slugify }}">{{ capacity }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Apply Filters Button -->
+            <button class="filter-button" onclick="applyFilters()">Apply Filters</button>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <h1>
+            {% if current_category %}
+            {{ current_category.name }}
+            {% else %}
+            Windows PC Components
+            {% endif %}
+        </h1>
+
+        {% if current_category %}
+        <p>{{ current_category.description|default:"Browse our selection of high-quality components" }}</p>
+        {% else %}
+        <p>Find the perfect components for your Windows PC build</p>
+        {% endif %}
+
+        <div class="products-grid">
+            {% for product in products %}
+            <div class="product-card">
+                <img src="{{ product.main_image.url }}" alt="{{ product.title }}" class="product-image">
+                <div class="product-info">
+                    <div class="product-title">{{ product.title }}</div>
+                    <div class="product-brand">{{ product.brand.name }}</div>
+                    <div class="product-price">
+                        {% if product.sale_price %}
+                        <span
+                            style="text-decoration: line-through; color: #999; font-size: 14px; margin-right: 5px;">${{
+                            product.price }}</span>
+                        <span style="color: #e53935;">${{ product.sale_price }}</span>
+                        <span
+                            style="background-color: #e53935; color: white; font-size: 12px; padding: 2px 5px; border-radius: 3px; margin-left: 5px;">-{{
+                            product.discount_percentage }}%</span>
+                        {% else %}
+                        ${{ product.price }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div>No products found matching your criteria.</div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1">&laquo; first</a>
+                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">previous</a>
+                {% endif %}
+        
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+        
+                {% if page_obj.has_next %}
+                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">next</a>
+                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+</div>
+{% endblock %}

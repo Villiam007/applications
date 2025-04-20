@@ -291,16 +291,161 @@ class WindowsProductsView(ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        return Product.objects.filter(platform='windows').order_by('-created_at')
+        queryset = Product.objects.filter(platform='windows')
+        
+        # Get category filter
+        category_slug = self.request.GET.get('category')
+        if category_slug:
+            queryset = queryset.filter(category__slug=category_slug)
+        
+        # Brand filter - สามารถเลือกได้หลาย brand
+        brand_slugs = self.request.GET.getlist('brand')
+        if brand_slugs:
+            queryset = queryset.filter(brand__slug__in=brand_slugs)
+        
+        # Price filter - ใช้กับทุกหมวดหมู่
+        max_price = self.request.GET.get('price')
+        if max_price and max_price.isdigit():
+            queryset = queryset.filter(price__lte=float(max_price))
+        
+        # Category-specific filters
+        if category_slug == 'gpu':
+            # Graphics Card specific filters (AMD, NVIDIA)
+            gpu_types = self.request.GET.getlist('gpu_type')
+            queryset = Product.filter_by_specifications(queryset, 'GPU Type', gpu_types)
+        
+        elif category_slug == 'ram':
+            # RAM specific filters
+            memory_types = self.request.GET.getlist('memory_type')
+            queryset = Product.filter_by_specifications(queryset, 'Memory Type', memory_types)
+            
+            memory_sizes = self.request.GET.getlist('memory_size')
+            queryset = Product.filter_by_specifications(queryset, 'Memory Size', memory_sizes)
+        
+        elif category_slug == 'ssd':
+            # SSD specific filters
+            ssd_types = self.request.GET.getlist('ssd_type')
+            if ssd_types:
+                ssd_type_filter = Q()
+                for ssd_type in ssd_types:
+                    ssd_type_filter |= Q(specifications__name='Interface Type', specifications__value=ssd_type)
+                if ssd_type_filter:
+                    queryset = queryset.filter(ssd_type_filter)
+            
+            capacities = self.request.GET.getlist('capacity')
+            if capacities:
+                capacity_filter = Q()
+                for capacity in capacities:
+                    capacity_filter |= Q(specifications__name='Capacity', specifications__value=capacity)
+                if capacity_filter:
+                    queryset = queryset.filter(capacity_filter)
+        
+        elif category_slug == 'hdd':
+            # HDD specific filters
+            capacities = self.request.GET.getlist('capacity')
+            if capacities:
+                capacity_filter = Q()
+                for capacity in capacities:
+                    capacity_filter |= Q(specifications__name='Capacity', specifications__value=capacity)
+                if capacity_filter:
+                    queryset = queryset.filter(capacity_filter)
+        
+        # ต้องใส่ distinct() เพื่อป้องกันการแสดงผลซ้ำหลังจากทำ join หลายตาราง
+        return queryset.distinct().order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.filter(
+        category_slug = self.request.GET.get('category')
+        
+        # ส่งข้อมูลที่เลือกไปยัง template เพื่อให้แสดงว่าได้เลือกอะไรไว้บ้าง
+        context['selected_brands'] = self.request.GET.getlist('brand')
+        context['selected_price'] = self.request.GET.get('price', '5000')  # Default to max price
+        
+        # Get all available brands for filtering
+        context['available_brands'] = Brand.objects.filter(
             products__platform='windows'
         ).distinct()
-        context['brands'] = Brand.objects.filter(
+        
+        # Category-specific filter options
+        if category_slug == 'gpu':
+            context['gpu_types'] = Product.get_available_specification_values(category_slug, 'GPU Type')
+            context['selected_gpu_types'] = self.request.GET.getlist('gpu_type')
+            
+        elif category_slug == 'ram':
+            context['memory_types'] = ProductSpecification.objects.filter(
+                product__category__slug='ram',
+                name='Memory Type'
+            ).values_list('value', flat=True).distinct()
+            context['selected_memory_types'] = self.request.GET.getlist('memory_type')
+            
+            context['memory_sizes'] = ProductSpecification.objects.filter(
+                product__category__slug='ram',
+                name='Memory Size'
+            ).values_list('value', flat=True).distinct()
+            context['selected_memory_sizes'] = self.request.GET.getlist('memory_size')
+            
+        elif category_slug in ['ssd', 'hdd']:
+            context['capacities'] = ProductSpecification.objects.filter(
+                product__category__slug=category_slug,
+                name='Capacity'
+            ).values_list('value', flat=True).distinct()
+            context['selected_capacities'] = self.request.GET.getlist('capacity')
+            
+            if category_slug == 'ssd':
+                context['ssd_types'] = ProductSpecification.objects.filter(
+                    product__category__slug='ssd',
+                    name='Interface Type'
+                ).values_list('value', flat=True).distinct()
+                context['selected_ssd_types'] = self.request.GET.getlist('ssd_type')
+        
+        # Pass the current category to the template
+        if category_slug:
+            context['current_category'] = Category.objects.filter(slug=category_slug).first()
+        
+        return context
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        category_slug = self.request.GET.get('category')
+        
+        # Get all available brands for filtering
+        context['available_brands'] = Brand.objects.filter(
             products__platform='windows'
         ).distinct()
+        
+        # Category-specific filter options
+        if category_slug == 'gpu':
+            context['gpu_types'] = ProductSpecification.objects.filter(
+                product__category__slug='gpu',
+                name='GPU Type'
+            ).values_list('value', flat=True).distinct()
+            
+        elif category_slug == 'ram':
+            context['memory_types'] = ProductSpecification.objects.filter(
+                product__category__slug='ram',
+                name='Memory Type'
+            ).values_list('value', flat=True).distinct()
+            
+            context['memory_sizes'] = ProductSpecification.objects.filter(
+                product__category__slug='ram',
+                name='Memory Size'
+            ).values_list('value', flat=True).distinct()
+            
+        elif category_slug in ['ssd', 'hdd']:
+            context['capacities'] = ProductSpecification.objects.filter(
+                product__category__slug=category_slug,
+                name='Capacity'
+            ).values_list('value', flat=True).distinct()
+            
+            if category_slug == 'ssd':
+                context['ssd_types'] = ProductSpecification.objects.filter(
+                    product__category__slug='ssd',
+                    name='Interface Type'
+                ).values_list('value', flat=True).distinct()
+        
+        # Pass the current category to the template
+        if category_slug:
+            context['current_category'] = Category.objects.filter(slug=category_slug).first()
+        
         return context
 
 
