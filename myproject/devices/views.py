@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib.auth.views import LogoutView as DjangoLogoutView
+from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
 from django.views.generic.edit import FormView
@@ -533,6 +534,7 @@ class AddReviewView(LoginRequiredMixin, CreateView):
 
 # Favorites Views
 @login_required
+@require_POST
 def add_to_favorites(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     favorite, created = Favorite.objects.get_or_create(user=request.user, product=product)
