@@ -35,6 +35,12 @@ class HomeView(TemplateView):
         context['new_products'] = Product.objects.filter(is_new=True).order_by('-created_at')[:8]
         context['bestsellers'] = Product.objects.filter(is_bestseller=True)[:8]
         context['categories'] = Category.objects.filter(featured=True)[:6]
+        if self.request.user.is_authenticated:
+            context['favorite_ids'] = set(
+                Favorite.objects.filter(user=self.request.user).values_list('product_id', flat=True)
+            )
+        else:
+            context['favorite_ids'] = set()
         return context
 
 
