@@ -161,6 +161,15 @@
 
 {% block content %}
 <div class="container py-5">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+    <div id="favorite-message"></div>
     <div class="row">
         <!-- Sidebar with filters -->
         <div class="col-lg-3 mb-4">
@@ -317,7 +326,7 @@
                                     </div>
                                 </div>
                                 <div class="card-footer bg-white d-flex justify-content-between">
-                                    <button class="btn btn-sm btn-outline-secondary add-to-favorites" 
+                                    <button class="btn btn-sm btn-outline-secondary favorite-btn" 
                                             data-product-id="{{ product.id }}">
                                         <i class="{% if product.id in favorite_ids %}fas text-danger{% else %}far{% endif %} fa-heart"></i>
                                     </button>
@@ -445,13 +454,18 @@
         });
     });
 
-    // Add to favorites functionality
-    document.querySelectorAll('.add-to-favorites').forEach(button => {
+    // favorites functionality
+    document.querySelectorAll('.favorite-btn').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             const productId = this.getAttribute('data-product-id');
-            
-            fetch(`/favorites/add/${productId}/`, {
+            const icon = this.querySelector('i');
+            const isFavorite = icon.classList.contains('fas');
+            const url = isFavorite
+                ? `/favorites/remove/${productId}/`
+                : `/favorites/add/${productId}/`;
+
+            fetch(url, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': '{{ csrf_token }}',
@@ -462,43 +476,31 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Toggle heart icon to solid and red
-                    const icon = this.querySelector('i');
-                    icon.classList.remove('far');
-                    icon.classList.add('fas', 'text-danger');
-
-                    // Show success toast
-                    const toast = document.createElement('div');
-                    toast.className = 'position-fixed bottom-0 end-0 p-3';
-                    toast.style.zIndex = '5';
-                    toast.innerHTML = `
-                        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-                            <div class="toast-header bg-success text-white">
-                                <strong class="me-auto">Favorites Updated</strong>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-                            </div>
-                            <div class="toast-body">
-                                Product added to your favorites!
-                            </div>
-                        </div>
-                    `;
-                    document.body.appendChild(toast);
-
-                    setTimeout(() => {
-                        toast.remove();
-                    }, 3000);
-
-                } else {
-                    if (data.redirect) {
-                        window.location.href = data.redirect;
+                    // Toggle heart icon
+                    if (isFavorite) {
+                        icon.classList.remove('fas', 'text-danger');
+                        icon.classList.add('far');
                     } else {
-                        alert(data.error || 'Failed to add product to favorites');
+                        icon.classList.remove('far');
+                        icon.classList.add('fas', 'text-danger');
+                    }
+                    // Show message 
+                    const msgContainer = document.getElementById('favorite-message');
+                    if (msgContainer && data.message) {
+                        msgContainer.innerHTML = `
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                ${data.message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `;
+                        setTimeout(() => {
+                            msgContainer.innerHTML = '';
+                        }, 7000);
                     }
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
             });
         });
     });
