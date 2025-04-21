@@ -654,7 +654,7 @@ def apply_coupon(request):
             except Coupon.DoesNotExist:
                 messages.error(request, "Invalid coupon code.")
 
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        return redirect('/cart')
 
 
 # Checkout and Order Views
