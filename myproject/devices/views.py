@@ -496,7 +496,7 @@ def profile_view(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Your profile has been updated successfully!")
-            return redirect('profile')
+            return redirect('devices:profile')
     else:
         form = UserProfileForm(instance=user_profile)
 
@@ -556,7 +556,7 @@ def add_to_favorites(request, product_id):
         return JsonResponse({
             'success': True,
             'created': created,
-            'message': 'Added to favorites' if created else 'Already in favorites'
+            'message': 'Added to favorites!' if created else 'Already in favorites'
         })
 
     messages.success(request, "Product added to your favorites!")
@@ -957,3 +957,20 @@ class LogoutView(DjangoLogoutView):
     def dispatch(self, request, *args, **kwargs):
         messages.success(request, "You have been logged out successfully.")
         return super().dispatch(request, *args, **kwargs)
+class ProfileView(LoginRequiredMixin, UpdateView):
+    model = UserProfile
+    template_name = 'devices/profile.html'
+    fields = ['avatar']
+    success_url = reverse_lazy('devices:profile')
+
+    def get_object(self, queryset=None):
+        return self.request.user.userprofile
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['orders'] = Order.objects.filter(user=self.request.user).order_by('-created_at')[:5]
+        return context
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Profile updated successfully!')
+        return super().form_valid(form)

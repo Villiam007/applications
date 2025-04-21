@@ -189,3 +189,4 @@ class CouponAdmin(admin.ModelAdmin):
         return "-"
     
     discount_display.short_description = 'Discount'
+ 
