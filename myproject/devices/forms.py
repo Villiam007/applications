@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model
+from django_countries.fields import CountryField
+from django_countries.widgets import CountrySelectWidget
 from .models import (
     Review, UserProfile, Order, Coupon,
     Category, Brand, Product, Tag
@@ -74,6 +76,10 @@ class OrderForm(forms.ModelForm):
         required=False, 
         initial=True,
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+
+    shipping_country = CountryField().formfield(
+        widget=CountrySelectWidget(attrs={'class': 'form-control'})
     )
 
     class Meta:
