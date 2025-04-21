@@ -509,7 +509,7 @@
         {% endfor %}
     </div>
     </section>
-    
+    <div id="favorite-message"></div>
     <!-- Featured Products -->
     <section class="product-section">
         <div class="container">
@@ -717,26 +717,18 @@
                   icon.classList.remove('far');
                   icon.classList.add('fas', 'text-danger');
                   
-                  // Show success toast
-                  const toast = document.createElement('div');
-                    toast.className = 'position-fixed bottom-0 end-0 p-3';
-                    toast.style.zIndex = '5';
-                    toast.innerHTML = `
-                        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-                            <div class="toast-header bg-success text-white">
-                                <strong class="me-auto">Favorites Updated</strong>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-                            </div>
-                            <div class="toast-body">
-                                Product added to your favorites!
-                            </div>
-                        </div>
-                    `;
-                    document.body.appendChild(toast);
-
-                    setTimeout(() => {
-                        toast.remove();
-                    }, 3000);
+                  const msgContainer = document.getElementById('favorite-message');
+                  if (msgContainer && data.message) {
+                      msgContainer.innerHTML = `
+                          <div class="alert alert-success alert-dismissible fade show" role="alert">
+                              ${data.message}
+                              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                      `;
+                      setTimeout(() => {
+                          msgContainer.innerHTML = '';
+                      }, 7000);
+                  }
                     
               } else {
                   alert(data.error || 'Failed to add product to favorites');

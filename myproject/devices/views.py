@@ -556,7 +556,7 @@ def add_to_favorites(request, product_id):
         return JsonResponse({
             'success': True,
             'created': created,
-            'message': 'Added to favorites' if created else 'Already in favorites'
+            'message': 'Added to favorites!' if created else 'Already in favorites'
         })
 
     messages.success(request, "Product added to your favorites!")
