@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib.auth.views import LogoutView as DjangoLogoutView
+from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
 from django.views.generic.edit import FormView
@@ -34,6 +35,12 @@ class HomeView(TemplateView):
         context['new_products'] = Product.objects.filter(is_new=True).order_by('-created_at')[:8]
         context['bestsellers'] = Product.objects.filter(is_bestseller=True)[:8]
         context['categories'] = Category.objects.filter(featured=True)[:6]
+        if self.request.user.is_authenticated:
+            context['favorite_ids'] = set(
+                Favorite.objects.filter(user=self.request.user).values_list('product_id', flat=True)
+            )
+        else:
+            context['favorite_ids'] = set()
         return context
 
 
@@ -276,10 +283,17 @@ class IOSProductsView(ListView):
         context['brands'] = Brand.objects.filter(
             products__platform='ios'
         ).distinct()
-
         context['available_colors'] = Color.objects.filter(
             productcolor__product__platform='ios'
         ).distinct()
+        # --- Add this block before return ---
+        if self.request.user.is_authenticated:
+            context['favorite_ids'] = set(
+                Favorite.objects.filter(user=self.request.user).values_list('product_id', flat=True)
+            )
+        else:
+            context['favorite_ids'] = set()
+        # --- End block ---
         return context
 
 
@@ -533,15 +547,16 @@ class AddReviewView(LoginRequiredMixin, CreateView):
 
 # Favorites Views
 @login_required
+@require_POST
 def add_to_favorites(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     favorite, created = Favorite.objects.get_or_create(user=request.user, product=product)
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({
-            'status': 'success',
+            'success': True,
             'created': created,
-            'message': 'Added to favorites' if created else 'Already in favorites'
+            'message': 'Added to favorites!' if created else 'Already in favorites'
         })
 
     messages.success(request, "Product added to your favorites!")
