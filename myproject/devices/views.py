@@ -633,20 +633,15 @@ def cart_detail(request):
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     cart, created = Cart.objects.get_or_create(user=request.user)
-    cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-    if not created:
-        cart_item.quantity += 1
-        cart_item.save()
-    # return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
     quantity = int(request.POST.get('quantity', 1))
-    
+
     # Get color selection if it's an iOS product
     product_color = None
     if product.platform == 'ios' and product.has_color_options:
         color_id = request.POST.get('color')
         if color_id:
             product_color = get_object_or_404(ProductColor, id=color_id, product=product)
-    
+
     cart_item, created = CartItem.objects.get_or_create(
         cart=cart,
         product=product,
@@ -942,9 +937,8 @@ class LoginView(TemplateView):
             if user is not None:
                 login(request, user)
                 messages.success(request, f"Welcome back, {username}!")
-                next_url = request.GET.get('next', 'devices:home')
-                return redirect(next_url)
-        
+                # Always redirect to home page after login
+                return redirect('devices:home')
         messages.error(request, "Invalid username or password.")
         return render(request, self.template_name, {'form': form})
     
