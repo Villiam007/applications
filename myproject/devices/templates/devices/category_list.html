@@ -185,48 +185,45 @@
 
     <!-- Categories Grid -->
     <div class="categories-grid">
-        {% for category in categories %}
-            <div class="category-card">
-                <a href="{% if category.slug == 'accessories' %}
-                            {% url 'devices:accessories' %}
-                         {% elif category.slug == 'ios' %}
-                            {% url 'devices:ios_products' %}
-                         {% elif category.slug == 'windows' %}
-                            {% url 'devices:windows_products' %}
-                         {% else %}
-                            {% url 'devices:category_detail' category.slug %}
-                         {% endif %}" 
-                   class="category-link">
-                    <div class="category-image">
-                        {% if category.image %}
-                            <img src="{{ category.image.url }}" alt="{{ category.name }}">
-                        {% else %}
-                            <div class="no-image">
-                                <span>No image available</span>
-                            </div>
-                        {% endif %}
-                    </div>
-                    <div class="category-content">
-                        <h2 class="category-title">{{ category.name }}</h2>
-                        {% if category.description %}
-                            <p class="category-description">{{ category.description|truncatechars:100 }}</p>
-                        {% endif %}
-                        <div class="category-footer">
-                            <span class="product-count">
-                                {{ category.products.count }} Products
-                            </span>
-                            <span class="view-button">
-                                View Category <i class="fas fa-chevron-right"></i>
-                            </span>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        {% empty %}
-            <div class="no-categories">
-                <p>No categories available yet.</p>
-            </div>
-        {% endfor %}
-    </div>
-</div>
+      {% for category in categories %}
+      <div class="category-card">
+          <a href="{% if category.slug == 'accessories' %}
+                      {% url 'devices:accessories' %}
+                   {% elif category.slug == 'ios' %}
+                      {% url 'devices:ios_products' %}
+                   {% elif category.slug == 'windows' %}
+                      {% url 'devices:windows_products' %}
+                   {% endif %}" 
+             class="category-link">
+              <div class="category-image">
+                  {% if category.image %}
+                      <img src="{{ category.image.url }}" alt="{{ category.name }}">
+                  {% else %}
+                      <div class="no-image">
+                          <span>No image available</span>
+                      </div>
+                  {% endif %}
+              </div>
+              <div class="category-content">
+                  <h2 class="category-title">{{ category.name }}</h2>
+                  {% if category.description %}
+                      <p class="category-description">{{ category.description|truncatechars:100 }}</p>
+                  {% endif %}
+                  <div class="category-footer">
+                      <span class="product-count">
+                          {{ category.products.count }} Products
+                      </span>
+                      <span class="view-button">
+                          View Category <i class="fas fa-chevron-right"></i>
+                      </span>
+                  </div>
+              </div>
+          </a>
+      </div>
+      {% empty %}
+      <div class="no-categories">
+          <p>No categories available yet.</p>
+      </div>
+      {% endfor %}
+  </div>
 {% endblock %}

@@ -3,12 +3,14 @@ from django.core.validators import MinLengthValidator, MinValueValidator, MaxVal
 from django.db.models import Q
 from django.conf import settings
 from django.utils.text import slugify
+from django.db import migrations
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=120, unique=True, blank=True)
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to='category_images/', blank=True, null=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='subcategories', blank=True, null=True)
     featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -182,7 +184,7 @@ class UserProfile(models.Model):
     city = models.CharField(max_length=100, blank=True, null=True)
     country = models.CharField(max_length=100, blank=True, null=True)
     postal_code = models.CharField(max_length=20, blank=True, null=True)
-
+    
     def __str__(self):
         return f"Profile for {self.user.username}"
 
@@ -334,3 +336,53 @@ class Coupon(models.Model):
     
     def __str__(self):
         return self.code
+    
+def create_windows_subcategories(apps, schema_editor):
+    Category = apps.get_model('your_app_name', 'Category')
+    
+    # First, create or get the main Windows category
+    windows_category, created = Category.objects.get_or_create(
+        name='Windows', 
+        defaults={'slug': 'windows', 'description': 'Windows PC Components'}
+    )
+    
+    # Create subcategories
+    subcategories = [
+        {'name': 'Laptop', 'slug': 'laptop', 'description': 'Windows Laptops'},
+        {'name': 'CPU', 'slug': 'cpu', 'description': 'Computer Processors'},
+        {'name': 'Water Cooling', 'slug': 'water-cooling', 'description': 'Water Cooling Systems'},
+        {'name': 'Air Cooling', 'slug': 'air-cooling', 'description': 'Air Cooling Systems'},
+        {'name': 'Motherboard', 'slug': 'motherboard', 'description': 'Computer Motherboards'},
+        {'name': 'Graphics Card', 'slug': 'gpu', 'description': 'Graphics Processing Units'},
+        {'name': 'RAM', 'slug': 'ram', 'description': 'Computer Memory'},
+        {'name': 'SSD', 'slug': 'ssd', 'description': 'Solid State Drives'},
+        {'name': 'Hard Disk', 'slug': 'hdd', 'description': 'Hard Disk Drives'},
+        {'name': 'Case', 'slug': 'case', 'description': 'Computer Cases'},
+        {'name': 'Power Supply', 'slug': 'psu', 'description': 'Power Supply Units'},
+        {'name': 'Monitor', 'slug': 'monitor', 'description': 'Computer Monitors'},
+        {'name': 'Fan', 'slug': 'fan', 'description': 'Computer Fans'},
+    ]
+    
+    for subcat in subcategories:
+        Category.objects.get_or_create(
+            name=subcat['name'],
+            defaults={
+                'slug': subcat['slug'],
+                'description': subcat['description'],
+                'parent': windows_category
+            }
+        )
+
+def reverse_migration(apps, schema_editor):
+    Category = apps.get_model('your_app_name', 'Category')
+    # Delete all Windows subcategories
+    Category.objects.filter(parent__name='Windows').delete()
+
+class Migration(migrations.Migration):
+    dependencies = [
+        ('your_app_name', 'previous_migration'),
+    ]
+
+    operations = [
+        migrations.RunPython(create_windows_subcategories, reverse_migration),
+    ]
