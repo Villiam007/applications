@@ -822,8 +822,25 @@
             }, 200); // Delay of 200ms
           });
           
+    
+          
         });
       });
     </script>
+     {% if user.is_authenticated %}
+     <div class="dropdown">
+       <a href="#" class="dropdown-toggle nav-link" id="userDropdown" role="button">
+         <i class="fas fa-user"></i>
+          {{ user.username }}
+       </a>
+       <ul class="dropdown-menu dropdown-menu-end">
+         <li>
+           <a class="dropdown-item" href="{% url 'devices:profile' %}">
+            <i class="fas fa-user"></i> My Profile
+           </a>
+         </li>
+       </ul>
+   </div>
+  {% endif %}
 </body>
 </html>
