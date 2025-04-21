@@ -1,1 +1,104 @@
 {% extends "devices/base.html" %}
+{% load humanize %}
+{% load widget_tweaks %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Checkout</h1>
+
+    <div class="row">
+        <!-- Order Summary -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    {% if items %}
+                        <ul class="list-group mb-3">
+                            {% for item in items %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ item.product.title }}</strong>
+                                        {% if item.product_color %}
+                                            <span class="badge bg-secondary ms-2">{{ item.product_color.color.name }}</span>
+                                        {% endif %}
+                                        <br>
+                                        <small class="text-muted">x{{ item.quantity }}</small>
+                                    </div>
+                                    <span>${{ item.product.price|floatformat:2|intcomma }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="d-flex justify-content-between">
+                            <span>Subtotal:</span>
+                            <span>${{ subtotal|floatformat:2|intcomma }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Discount:</span>
+                            <span class="text-success">-${{ discount|floatformat:2|intcomma }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Shipping:</span>
+                            <span>${{ shipping_cost|floatformat:2|intcomma }}</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Total:</span>
+                            <span>${{ total|floatformat:2|intcomma }}</span>
+                        </div>
+                        {% if coupon %}
+                            <div class="mt-2">
+                                <span class="badge bg-success">Coupon: {{ coupon.code }}</span>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <p>Your cart is empty.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping & Billing Form -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Shipping Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+                        <div class="mb-3">
+                            <label for="{{ form.shipping_address.id_for_label }}" class="form-label">Address</label>
+                            {{ form.shipping_address|add_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.shipping_city.id_for_label }}" class="form-label">City</label>
+                            {{ form.shipping_city|add_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.shipping_country.id_for_label }}" class="form-label">Country</label>
+                            {{ form.shipping_country|add_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.shipping_postal_code.id_for_label }}" class="form-label">Postal Code</label>
+                            {{ form.shipping_postal_code|add_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.payment_method.id_for_label }}" class="form-label">Payment Method</label>
+                            {{ form.payment_method|add_class:"form-select" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">Order Notes</label>
+                            {{ form.notes|add_class:"form-control" }}
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Place Order</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

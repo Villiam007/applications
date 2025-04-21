@@ -522,13 +522,13 @@ class AddReviewView(LoginRequiredMixin, CreateView):
 
         if existing_review:
             messages.warning(self.request, "You have already reviewed this product.")
-            return HttpResponseRedirect(reverse('product_detail', args=[product.slug]))
+            return HttpResponseRedirect(reverse('devices:product_detail', args=[product.slug]))
 
         messages.success(self.request, "Your review has been added successfully!")
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('product_detail', args=[self.kwargs['slug']])
+        return reverse('devices:product_detail', args=[self.kwargs['slug']])
 
 
 # Favorites Views
@@ -545,7 +545,7 @@ def add_to_favorites(request, product_id):
         })
 
     messages.success(request, "Product added to your favorites!")
-    return redirect('product_detail', slug=product.slug)
+    return redirect('devices:product_detail', slug=product.slug)
 
 
 @login_required
@@ -560,7 +560,12 @@ def remove_from_favorites(request, product_id):
         })
 
     messages.success(request, "Product removed from your favorites.")
-    return redirect('profile')
+    return redirect('devices:favorites')
+
+@login_required
+def favorites_view(request):
+    favorites = Favorite.objects.filter(user=request.user).select_related('product')
+    return render(request, 'devices/favorites.html', {'favorites': favorites})
 
 
 # Cart Views
@@ -616,7 +621,7 @@ def add_to_cart(request, product_id):
     if not created:
         cart_item.quantity += 1
         cart_item.save()
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    # return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
     quantity = int(request.POST.get('quantity', 1))
     
     # Get color selection if it's an iOS product
@@ -732,7 +737,7 @@ class CheckoutView(LoginRequiredMixin, CreateView):
     model = Order
     form_class = OrderForm
     template_name = 'devices/checkout.html'
-    success_url = reverse_lazy('order_confirmation')
+    success_url = reverse_lazy('devices:order_confirmation')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -926,6 +931,9 @@ class LoginView(TemplateView):
         
         messages.error(request, "Invalid username or password.")
         return render(request, self.template_name, {'form': form})
+    
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
 
 
 class LogoutView(DjangoLogoutView):

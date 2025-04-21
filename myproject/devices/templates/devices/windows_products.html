@@ -1,5 +1,6 @@
 {% extends "devices/base.html" %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Windows Products - DeviceShop{% endblock %}
 
@@ -667,12 +668,12 @@
                     <div class="product-price">
                         {% if product.sale_price %}
                         <span
-                            style="text-decoration: line-through; color: #999; font-size: 14px; margin-right: 5px;">${{product.price }}</span>
-                        <span style="color: #e53935;">${{ product.sale_price }}</span>
+                            style="text-decoration: line-through; color: #999; font-size: 14px; margin-right: 5px;">${{product.price|floatformat:2|intcomma }}</span>
+                        <span style="color: #e53935;">${{ product.sale_price|floatformat:2|intcomma }}</span>
                         <span
                             style="background-color: #e53935; color: white; font-size: 12px; padding: 2px 5px; border-radius: 3px; margin-left: 5px;">-{{product.discount_percentage }}%</span>
                         {% else %}
-                        ${{ product.price }}
+                        ${{ product.price|floatformat:2|intcomma }}
                         {% endif %}
                     </div>
                 </div>

@@ -1,5 +1,6 @@
 {% extends 'devices/base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}iOS Products{% endblock %}
 
@@ -294,10 +295,10 @@
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="price-container">
                                             {% if product.sale_price %}
-                                                <span class="text-danger fw-bold">฿{{ product.sale_price }}</span>
-                                                <span class="text-muted text-decoration-line-through">฿{{ product.price }}</span>
+                                                <span class="text-danger fw-bold">฿{{ product.sale_price|floatformat:2|intcomma }}</span>
+                                                <span class="text-muted text-decoration-line-through">฿{{ product.price|floatformat:2|intcomma }}</span>
                                             {% else %}
-                                                <span class="fw-bold">฿{{ product.price }}</span>
+                                                <span class="fw-bold">฿{{ product.price|floatformat:2|intcomma }}</span>
                                             {% endif %}
                                         </div>
                                         <div class="rating">

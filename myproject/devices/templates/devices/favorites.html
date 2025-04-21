@@ -1,0 +1,49 @@
+{% extends 'devices/base.html' %}
+
+{% block title %}My Favorites - Tech Store{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">My Favorites</h1>
+
+    {% if favorites %}
+        <div class="row">
+            {% for favorite in favorites %}
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100">
+                        {% if favorite.product.main_image %}
+                            <img src="{{ favorite.product.main_image.url }}" class="card-img-top" alt="{{ favorite.product.title }}">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ favorite.product.title }}</h5>
+                            <p class="card-text">
+                                {% if favorite.product.sale_price %}
+                                    <span class="text-muted text-decoration-line-through">${{ favorite.product.price }}</span>
+                                    <span class="text-danger ms-2">${{ favorite.product.sale_price }}</span>
+                                {% else %}
+                                    <span>${{ favorite.product.price }}</span>
+                                {% endif %}
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{% url 'devices:product_detail' slug=favorite.product.slug %}" class="btn btn-primary btn-sm">View Details</a>
+                                <form method="post" action="{% url 'devices:remove_from_favorites' product_id=favorite.product.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <h3>No favorites yet</h3>
+            <p class="text-muted">Browse our products and add items to your favorites.</p>
+            <a href="{% url 'devices:home' %}" class="btn btn-primary">Continue Shopping</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

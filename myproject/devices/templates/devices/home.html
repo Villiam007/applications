@@ -1,5 +1,6 @@
 {% extends 'devices/base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Tech Store - Home{% endblock %}
 {% block extra_css %}
@@ -536,10 +537,10 @@
                             
                             <div class="product-price">
                                 {% if product.sale_price %}
-                                    <span class="old-price">${{ product.price }}</span>
-                                    <span class="current-price">${{ product.sale_price }}</span>
+                                    <span class="old-price">${{ product.price|floatformat:2|intcomma }}</span>
+                                    <span class="current-price">${{ product.sale_price|floatformat:2|intcomma }}</span>
                                 {% else %}
-                                    <span class="current-price">${{ product.price }}</span>
+                                    <span class="current-price">${{ product.price|floatformat:2|intcomma }}</span>
                                 {% endif %}
                             </div>
                             
@@ -604,10 +605,10 @@
                             
                             <div class="product-price">
                                 {% if product.sale_price %}
-                                    <span class="old-price">${{ product.price }}</span>
-                                    <span class="current-price">${{ product.sale_price }}</span>
+                                    <span class="old-price">${{ product.price|floatformat:2|intcomma }}</span>
+                                    <span class="current-price">${{ product.sale_price|floatformat:2|intcomma }}</span>
                                 {% else %}
-                                    <span class="current-price">${{ product.price }}</span>
+                                    <span class="current-price">${{ product.price|floatformat:2|intcomma }}</span>
                                 {% endif %}
                             </div>
                             
@@ -665,10 +666,10 @@
                             
                             <div class="product-price">
                                 {% if product.sale_price %}
-                                    <span class="old-price">${{ product.price }}</span>
-                                    <span class="current-price">${{ product.sale_price }}</span>
+                                    <span class="old-price">${{ product.price|floatformat:2|intcomma }}</span>
+                                    <span class="current-price">${{ product.sale_price|floatformat:2|intcomma }}</span>
                                 {% else %}
-                                    <span class="current-price">${{ product.price }}</span>
+                                    <span class="current-price">${{ product.price|floatformat:2|intcomma }}</span>
                                 {% endif %}
                             </div>
                             

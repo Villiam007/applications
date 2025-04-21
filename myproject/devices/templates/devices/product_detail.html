@@ -1,6 +1,7 @@
 {% extends 'devices/base.html' %}
 {% load static %}
 {% load custom_filters %}
+{% load humanize %}
 
 {% block title %}{{ product.title }} - Tech Store{% endblock %}
 
@@ -743,11 +744,11 @@
 
                     <div class="product-price">
                         {% if product.sale_price %}
-                        <span class="old-price">${{ product.price }}</span>
-                        <span class="current-price">${{ product.sale_price }}</span>
+                        <span class="old-price">${{ product.price|floatformat:2|intcomma }}</span>
+                        <span class="current-price">${{ product.sale_price|floatformat:2|intcomma }}</span>
                         <span class="discount-badge">{{ product.discount_percentage }}% OFF</span>
                         {% else %}
-                        <span class="current-price">${{ product.price }}</span>
+                        <span class="current-price">${{ product.price|floatformat:2|intcomma }}</span>
                         {% endif %}
                     </div>
 
@@ -938,8 +939,7 @@
                             <div class="review-item">
                                 <div class="review-header">
                                     <div class="review-user">
-                                        <span class="reviewer-name">{{
-                                            review.user.get_full_name|default:review.user.username }}</span>
+                                        <span class="reviewer-name">{{review.user.get_full_name|default:review.user.username }}</span>
                                         <span class="review-date">{{ review.created_at|date:"F d, Y" }}</span>
                                     </div>
                                     <div class="review-rating">
@@ -982,16 +982,15 @@
                     </a>
 
                     <div class="product-info">
-                        <a href="{% url 'devices:product_detail' slug=product.slug %}" class="product-title">{{
-                            product.title }}</a>
+                        <a href="{% url 'devices:product_detail' slug=product.slug %}" class="product-title">{{product.title }}</a>
                         <p class="product-category">{{ product.category.name }}</p>
 
                         <div class="product-price">
                             {% if product.sale_price %}
-                            <span class="old-price">${{ product.price }}</span>
-                            <span class="current-price">${{ product.sale_price }}</span>
+                            <span class="old-price">${{ product.price|floatformat:2|intcomma }}</span>
+                            <span class="current-price">${{ product.sale_price|floatformat:2|intcomma }}</span>
                             {% else %}
-                            <span class="current-price">${{ product.price }}</span>
+                            <span class="current-price">${{ product.price|floatformat:2|intcomma }}</span>
                             {% endif %}
                         </div>
 

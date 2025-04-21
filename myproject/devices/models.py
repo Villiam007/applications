@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinLengthValidator, MinValueValidator, MaxValueValidator
+from django.db.models import Q
 from django.conf import settings
 from django.utils.text import slugify
 
@@ -228,10 +229,17 @@ class Order(models.Model):
         return f"Order {self.order_number} by {self.user.username}"
     
     def save(self, *args, **kwargs):
-        if not self.order_number and self.id:
-            # Generate order number when first saved
-            self.order_number = f"ORD-{self.created_at.strftime('%Y%m%d')}-{self.id:04d}"
-        super().save(*args, **kwargs)
+        # Save once to get an ID and created_at
+        if not self.pk:
+            super().save(*args, **kwargs)
+        # Now set order_number if not set
+        if not self.order_number:
+            date_str = self.created_at.strftime('%Y%m%d') if self.created_at else ''
+            self.order_number = f"ORD-{date_str}-{self.pk:04d}"
+            # Save again to update order_number
+            super().save(update_fields=['order_number'])
+        else:
+            super().save(*args, **kwargs)
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
