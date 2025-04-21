@@ -564,13 +564,14 @@ def add_to_favorites(request, product_id):
 
 
 @login_required
+@require_POST
 def remove_from_favorites(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     Favorite.objects.filter(user=request.user, product=product).delete()
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({
-            'status': 'success',
+            'success': True,
             'message': 'Removed from favorites'
         })
 
