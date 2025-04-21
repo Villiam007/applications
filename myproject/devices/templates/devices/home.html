@@ -349,33 +349,23 @@
   font-size: 16px;
 }
 
-/* Message Container Styles */
-/*
-.favorite-message {
-    position: fixed;
-    top: 80px;
-    right: 20px;
-    z-index: 9999;
-    min-width: 300px;
-    max-width: 400px;
-    pointer-events: none;
-}
-*/
-/* 
-.favorite-message .alert {
-  pointer-events: auto; 
-  background-color: #fff;
-  border-left: 4px solid #28a745;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  margin-bottom: 1rem;
-  padding: 1rem;
-  animation: slideInRight 0.3s ease-out;
-}
+/* .favorite-message-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 20px;
+} */
 
-.alert {
-  animation: slideInRight 0.3s ease-out;
+#favorite-message {
+    margin-bottom: 20px;
 }
-*/
+#favorite-message .alert {
+    width: 100%;
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    padding: 1rem 1.5rem;
+}
 
 .notify-form {
         margin-top: 15px;
@@ -534,8 +524,16 @@
     <h1 class="page-title">Home</h1>
 {% endblock %}
 {% block content %}
-    <div id="favorite-message" class="favorite-message"></div>
-
+<div class="container">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+  <div id="favorite-message"></div>
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">
@@ -759,14 +757,21 @@
             </div>
         </div>
     </section>
+</div>
 {% endblock %}
-<!-- {% block extra_js %}
+{% block extra_js %}
 <script>
 document.querySelectorAll('.favorite-btn').forEach(button => {
     button.addEventListener('click', function(e) {
         e.preventDefault();
         const productId = this.getAttribute('data-product-id');
-        fetch(`/favorites/add/${productId}/`, {
+        const icon = this.querySelector('i');
+        const isFavorite = icon.classList.contains('fas');
+        const url = isFavorite
+            ? `/favorites/remove/${productId}/`
+            : `/favorites/add/${productId}/`;
+
+        fetch(url, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': '{{ csrf_token }}',
@@ -777,11 +782,15 @@ document.querySelectorAll('.favorite-btn').forEach(button => {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Update heart icon
-                const icon = this.querySelector('i');
-                icon.classList.remove('far');
-                icon.classList.add('fas', 'text-danger');
-                // Show message in the same style and position as product_detail page
+                // Toggle heart icon
+                if (isFavorite) {
+                    icon.classList.remove('fas', 'text-danger');
+                    icon.classList.add('far');
+                } else {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas', 'text-danger');
+                }
+                // Show message 
                 const msgContainer = document.getElementById('favorite-message');
                 if (msgContainer && data.message) {
                     msgContainer.innerHTML = `
@@ -802,4 +811,4 @@ document.querySelectorAll('.favorite-btn').forEach(button => {
     });
 });
 </script>
-{% endblock %} -->
+{% endblock %}
