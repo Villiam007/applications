@@ -9,6 +9,7 @@ class Category(models.Model):
     slug = models.SlugField(max_length=120, unique=True, blank=True)
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to='category_images/', blank=True, null=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='subcategories', blank=True, null=True)
     featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
