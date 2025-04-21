@@ -334,5 +334,3 @@ class Coupon(models.Model):
     
     def __str__(self):
         return self.code
-    # Add this model after your existing models
-

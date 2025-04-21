@@ -14,6 +14,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
 from django.views.generic.edit import FormView
+import json
 
 from .models import (
     Category, Brand, Product, ProductImage, Tag, ProductSpecification,
@@ -633,7 +634,14 @@ def cart_detail(request):
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     cart, created = Cart.objects.get_or_create(user=request.user)
-    quantity = int(request.POST.get('quantity', 1))
+
+    if request.content_type == 'application/json':
+        data = json.loads(request.body)
+        quantity = int(data.get('quantity', 1))
+        color_id = data.get('color')
+    else:
+        quantity = int(request.POST.get('quantity', 1))
+        color_id = request.POST.get('color')
 
     # Get color selection if it's an iOS product
     product_color = None
@@ -642,20 +650,30 @@ def add_to_cart(request, product_id):
         if color_id:
             product_color = get_object_or_404(ProductColor, id=color_id, product=product)
 
-    cart_item, created = CartItem.objects.get_or_create(
+    # Use filter().first() to avoid MultipleObjectsReturned
+    cart_item = CartItem.objects.filter(
         cart=cart,
         product=product,
-        product_color=product_color,  # This will be None for non-iOS products
-        defaults={'quantity': quantity}
-    )
+        product_color=product_color
+    ).first()
 
-    if not created:
+    if cart_item:
         cart_item.quantity += quantity
         cart_item.save()
+        created = False
+    else:
+        cart_item = CartItem.objects.create(
+            cart=cart,
+            product=product,
+            product_color=product_color,
+            quantity=quantity
+        )
+        created = True
 
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Modern way to check if ajax
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
-            'status': 'success',
+            'success': True,
+            'created': created,
             'message': f"{product.title} added to your cart",
             'cart_total': cart.total_items
         })
