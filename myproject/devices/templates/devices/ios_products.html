@@ -170,6 +170,7 @@
       {% endfor %}
     {% endif %}
     <div id="favorite-message"></div>
+    <div id="addtocart-message"></div>
     <div class="row">
         <!-- Sidebar with filters -->
         <div class="col-lg-3 mb-4">
@@ -402,46 +403,37 @@
         button.addEventListener('click', function(e) {
             e.preventDefault();
             const productId = this.getAttribute('data-product-id');
+            const formData = new FormData();
+            formData.append('quantity', 1);
             
             fetch(`/cart/add/${productId}/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json'
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: JSON.stringify({
-                    quantity: 1
-                })
+                body: formData
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Show success toast notification
-                    const toast = document.createElement('div');
-                    toast.className = 'position-fixed bottom-0 end-0 p-3';
-                    toast.style.zIndex = '5';
-                    toast.innerHTML = `
-                        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-                            <div class="toast-header bg-success text-white">
-                                <strong class="me-auto">Cart Updated</strong>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                    const msgContainer = document.getElementById('favorite-message');
+                    if (msgContainer && data.message) {
+                        msgContainer.innerHTML = `
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                ${data.message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
-                            <div class="toast-body">
-                                Product added to your cart!
-                            </div>
-                        </div>
-                    `;
-                    document.body.appendChild(toast);
-                    
-                    // Auto remove toast after 3 seconds
-                    setTimeout(() => {
-                        toast.remove();
-                    }, 3000);
+                        `;
+                        setTimeout(() => {
+                            msgContainer.innerHTML = '';
+                        }, 7000);
+                    }
                     
                     // Update cart count in navbar if available
                     const cartCount = document.querySelector('.cart-count');
                     if (cartCount) {
-                        cartCount.textContent = data.cart_count;
+                        cartCount.textContent = data.cart_total;
                     }
                 } else {
                     alert(data.error || 'Failed to add product to cart');
@@ -485,7 +477,7 @@
                         icon.classList.add('fas', 'text-danger');
                     }
                     // Show message 
-                    const msgContainer = document.getElementById('favorite-message');
+                    const msgContainer = document.getElementById('addtocart-message');
                     if (msgContainer && data.message) {
                         msgContainer.innerHTML = `
                             <div class="alert alert-success alert-dismissible fade show" role="alert">

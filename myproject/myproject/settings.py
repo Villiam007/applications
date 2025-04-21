@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'devices.apps.DevicesConfig',  # Custom app for the project
     'django.contrib.humanize',
     'widget_tweaks',
+    'django_countries',
+
 ]
 
 MIDDLEWARE = [
