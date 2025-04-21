@@ -19,7 +19,7 @@
                     <div class="row align-items-center mb-3 pb-3 border-bottom">
                         <div class="col-md-2">
                             {% if item.product.images.first %}
-                                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.title }}" class="img-fluid rounded">
+                            <img src="{{ item.product.main_image.url }}" alt="{{ item.product.title }}" class="img-fluid rounded">
                             {% endif %}
                         </div>
                         <div class="col-md-4">
