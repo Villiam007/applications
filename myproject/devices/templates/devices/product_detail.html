@@ -679,7 +679,7 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{% url 'devices:home' %}">Home</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'devices:category_detail' slug=product.category.slug %}">{{product.category.name }}</a></li>
+                <li class="breadcrumb-item"><a href="?category={{ product.category.slug }}">{{product.category.name }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">{{ product.title }}</li>
             </ol>
         </nav>
@@ -722,7 +722,7 @@
                         <span class="product-brand">Brand: <a
                                 href="{% url 'devices:product_search' %}?brand={{ product.brand.slug }}">{{product.brand.name }}</a></span>
                         <span class="product-category">Category: <a
-                                href="{% url 'devices:category_detail' slug=product.category.slug %}">{{product.category.name }}</a></span>
+                                href="?category={{ product.category.slug }}">{{product.category.name }}</a></span>
                         {% if product.platform %}
                         <span class="product-platform">Platform: <a
                                 href="{% url 'devices:product_search' %}?platform={{ product.platform }}">{{product.get_platform_display }}</a></span>
