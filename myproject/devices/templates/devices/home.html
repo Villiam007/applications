@@ -467,9 +467,6 @@
 </style>
 {% endblock %}
 
-{% block extra_js %}
-{% endblock %}
-
 {% block content_header %}
     <h1 class="page-title">Home</h1>
 {% endblock %}
@@ -567,9 +564,9 @@
                                 </form>
                                 
                                 {% if user.is_authenticated %}
-                                    <a href="{% url 'devices:add_to_favorites' product_id=product.id %}" class="favorite-btn">
-                                        <i class="{% if product in user.favorites.all %}fas{% else %}far{% endif %} fa-heart"></i>
-                                    </a>
+                                    <button type="button" class="favorite-btn" data-product-id="{{ product.id }}">
+                                      <i class="{% if product.id in favorite_ids %}fas text-danger{% else %}far{% endif %} fa-heart"></i>
+                                    </button>
                                 {% endif %}
                             </div>
                         </div>
@@ -618,6 +615,11 @@
                                     <input type="hidden" name="quantity" value="1">
                                     <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
                                 </form>
+                                {% if user.is_authenticated %}
+                                    <button type="button" class="favorite-btn" data-product-id="{{ product.id }}">
+                                      <i class="{% if product.id in favorite_ids %}fas text-danger{% else %}far{% endif %} fa-heart"></i>
+                                    </button>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -679,6 +681,11 @@
                                     <input type="hidden" name="quantity" value="1">
                                     <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
                                 </form>
+                                {% if user.is_authenticated %}
+                                    <button type="button" class="favorite-btn" data-product-id="{{ product.id }}">
+                                      <i class="{% if product.id in favorite_ids %}fas text-danger{% else %}far{% endif %} fa-heart"></i>
+                                    </button>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -688,4 +695,57 @@
             </div>
         </div>
     </section>
+{% endblock %}
+{% block extra_js %}
+<script>
+  document.querySelectorAll('.favorite-btn').forEach(button => {
+      button.addEventListener('click', function(e) {
+          e.preventDefault();
+          const productId = this.getAttribute('data-product-id');
+          fetch(`/favorites/add/${productId}/`, {
+              method: 'POST',
+              headers: {
+                  'X-CSRFToken': '{{ csrf_token }}',
+                  'Content-Type': 'application/json',
+                  'X-Requested-With': 'XMLHttpRequest'
+              }
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  const icon = this.querySelector('i');
+                  icon.classList.remove('far');
+                  icon.classList.add('fas', 'text-danger');
+                  
+                  // Show success toast
+                  const toast = document.createElement('div');
+                    toast.className = 'position-fixed bottom-0 end-0 p-3';
+                    toast.style.zIndex = '5';
+                    toast.innerHTML = `
+                        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="toast-header bg-success text-white">
+                                <strong class="me-auto">Favorites Updated</strong>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body">
+                                Product added to your favorites!
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(toast);
+
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 3000);
+                    
+              } else {
+                  alert(data.error || 'Failed to add product to favorites');
+              }
+          })
+          .catch(error => {
+              alert('An error occurred. Please try again.');
+          });
+      });
+  });
+  </script>
 {% endblock %}
