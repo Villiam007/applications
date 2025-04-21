@@ -96,12 +96,14 @@
 }
 
 .category-grid {
-  display: grid;
+  display: flex;
   grid-template-columns: repeat(3, 1fr);
   gap: 60px;
   max-width: 1500px; /* กำหนดความกว้างสูงสุดของกริด */
   margin: 0 auto; /* จัดให้อยู่ตรงกลาง */
   justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .category-card {

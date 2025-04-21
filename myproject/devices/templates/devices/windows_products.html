@@ -657,20 +657,23 @@
             <div class="product-card">
                 <img src="{{ product.main_image.url }}" alt="{{ product.title }}" class="product-image">
                 <div class="product-info">
-                    <h3 class="product-title">{{ product.title }}</h3>
-                    <p class="product-brand">{{ product.brand.name }}</p>
-                    <p class="product-price">
+                    <div class="product-title">{{ product.title }}</div>
+                    <div class="product-brand">{{ product.brand.name }}</div>
+                    <div class="product-price">
                         {% if product.sale_price %}
-                        <span class="sale-price">${{ product.sale_price }}</span>
-                        <span class="original-price">${{ product.price }}</span>
+                        <span
+                            style="text-decoration: line-through; color: #999; font-size: 14px; margin-right: 5px;">${{product.price|floatformat:2|intcomma }}</span>
+                        <span style="color: #e53935;">${{ product.sale_price|floatformat:2|intcomma }}</span>
+                        <span
+                            style="background-color: #e53935; color: white; font-size: 12px; padding: 2px 5px; border-radius: 3px; margin-left: 5px;">-{{product.discount_percentage }}%</span>
                         {% else %}
-                        ${{ product.price }}
+                        ${{ product.price|floatformat:2|intcomma }}
                         {% endif %}
-                    </p>
+                    </div>
                 </div>
             </div>
             {% empty %}
-            <p>No products found for this category.</p>
+            <div>No products found matching your criteria.</div>
             {% endfor %}
         </div>
 
