@@ -319,7 +319,7 @@
                                 <div class="card-footer bg-white d-flex justify-content-between">
                                     <button class="btn btn-sm btn-outline-secondary add-to-favorites" 
                                             data-product-id="{{ product.id }}">
-                                        <i class="far fa-heart"></i>
+                                        <i class="{% if product.id in favorite_ids %}fas text-danger{% else %}far{% endif %} fa-heart"></i>
                                     </button>
                                     <a href="{% url 'devices:product_detail' product.slug %}" class="btn btn-sm btn-primary">View Details</a>
                                     <button class="btn btn-sm btn-success add-to-cart" 
@@ -455,17 +455,39 @@
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Toggle heart icon
+                    // Toggle heart icon to solid and red
                     const icon = this.querySelector('i');
-                    icon.classList.toggle('far');
-                    icon.classList.toggle('fas');
-                    icon.classList.toggle('text-danger');
+                    icon.classList.remove('far');
+                    icon.classList.add('fas', 'text-danger');
+
+                    // Show success toast
+                    const toast = document.createElement('div');
+                    toast.className = 'position-fixed bottom-0 end-0 p-3';
+                    toast.style.zIndex = '5';
+                    toast.innerHTML = `
+                        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="toast-header bg-success text-white">
+                                <strong class="me-auto">Favorites Updated</strong>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body">
+                                Product added to your favorites!
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(toast);
+
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 3000);
+
                 } else {
                     if (data.redirect) {
                         window.location.href = data.redirect;

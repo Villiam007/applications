@@ -277,10 +277,17 @@ class IOSProductsView(ListView):
         context['brands'] = Brand.objects.filter(
             products__platform='ios'
         ).distinct()
-
         context['available_colors'] = Color.objects.filter(
             productcolor__product__platform='ios'
         ).distinct()
+        # --- Add this block before return ---
+        if self.request.user.is_authenticated:
+            context['favorite_ids'] = set(
+                Favorite.objects.filter(user=self.request.user).values_list('product_id', flat=True)
+            )
+        else:
+            context['favorite_ids'] = set()
+        # --- End block ---
         return context
 
 
@@ -541,7 +548,7 @@ def add_to_favorites(request, product_id):
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({
-            'status': 'success',
+            'success': True,
             'created': created,
             'message': 'Added to favorites' if created else 'Already in favorites'
         })
