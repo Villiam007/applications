@@ -786,10 +786,10 @@
                             </button>
 
                             {% if user.is_authenticated %}
-                            <a href="{% url 'devices:add_to_favorites' product_id=product.id %}" class="btn btn-outline-danger favorite-btn" data-product-id="{{ product.id }}">
+                            <button type="button" class="btn btn-outline-danger favorite-btn" data-product-id="{{ product.id }}">
                                 <i class="{% if is_favorite %}fas{% else %}far{% endif %} fa-heart"></i>
                                 <span>{% if is_favorite %}Added to Favorites{% else %}Add to Favorites{% endif %}</span>
-                            </a>
+                            </button>
                             {% endif %}
                         </div>
                     </form>
@@ -1094,22 +1094,24 @@
                     : `/favorites/add/${productId}/`;
 
                 fetch(url, {
-                    method: 'GET',
+                    method: 'POST',
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Content-Type': 'application/json'
-                    }
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({})
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.status === 'success') {
+                    if (data.success) {
                         if (isFavorite) {
-                            icon.classList.remove('fas');
+                            icon.classList.remove('fas', 'text-danger');
                             icon.classList.add('far');
                             textSpan.textContent = 'Add to Favorites';
                         } else {
                             icon.classList.remove('far');
-                            icon.classList.add('fas');
+                            icon.classList.add('fas', 'text-danger');
                             textSpan.textContent = 'Added to Favorites';
                         }
                         // Show the message
