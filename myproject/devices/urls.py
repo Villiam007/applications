@@ -12,7 +12,6 @@ urlpatterns = [
     
     # Product Catalog Views
     path('categories/', views.CategoryListView.as_view(), name='category_list'),
-    path('category/<slug:slug>/', views.CategoryDetailView.as_view(), name='category_detail'),
     path('product/<slug:slug>/', views.ProductDetailView.as_view(), name='product_detail'),
     path('search/', views.ProductSearchView.as_view(), name='product_search'),
     

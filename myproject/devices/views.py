@@ -73,49 +73,6 @@ class CategoryListView(ListView):
         # กรองเฉพาะหมวดหมู่ Accessory, iOS, และ Windows
         return Category.objects.filter(slug__in=['accessories', 'ios', 'windows'])
 
-class CategoryDetailView(DetailView):
-    model = Category
-    template_name = 'devices/category_detail.html'
-    context_object_name = 'category'
-    slug_url_kwarg = 'slug'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        products = self.object.products.all()
-
-        # Filtering
-        platform = self.request.GET.get('platform')
-        if platform:
-            products = products.filter(platform=platform)
-
-        brand = self.request.GET.get('brand')
-        if brand:
-            products = products.filter(brand__slug=brand)
-
-        # Sorting
-        sort = self.request.GET.get('sort', '-created_at')  # Default to newest
-        if sort == 'price_low':
-            products = products.order_by('price')
-        elif sort == 'price_high':
-            products = products.order_by('-price')
-        elif sort == 'name':
-            products = products.order_by('title')
-        else:
-            products = products.order_by(sort)
-
-        # Pagination
-        paginator = Paginator(products, 12)  # 12 products per page
-        page_number = self.request.GET.get('page')
-        context['products'] = paginator.get_page(page_number)
-
-        # Filter options
-        context['brands'] = Brand.objects.filter(
-            products__category=self.object
-        ).distinct()
-
-        return context
-
-
 class ProductDetailView(DetailView):
     model = Product
     template_name = 'devices/product_detail.html'
@@ -340,6 +297,19 @@ class WindowsProductsView(ListView):
             if capacities:
                 queryset = Product.filter_by_specifications(queryset, 'Capacity', capacities)
         
+        # จัดการการเรียงลำดับ (Sort)
+        sort_option = self.request.GET.get('sort')
+        if sort_option == 'price_asc':
+            queryset = queryset.order_by('price')
+        elif sort_option == 'price_desc':
+            queryset = queryset.order_by('-price')
+        elif sort_option == 'name_asc':
+            queryset = queryset.order_by('title')
+        elif sort_option == 'name_desc':
+            queryset = queryset.order_by('-title')
+        elif sort_option == 'newest':
+            queryset = queryset.order_by('-created_at')
+
         return queryset
     
     def get_context_data(self, **kwargs):
@@ -380,53 +350,14 @@ class WindowsProductsView(ListView):
         elif category_slug == 'hdd':
             context['capacities'] = Product.get_available_specification_values(category_slug, 'Capacity')
             context['selected_capacities'] = self.request.GET.getlist('capacity')
-        
-        return context
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        category_slug = self.request.GET.get('category')
-        
-        # Get all available brands for filtering
-        context['available_brands'] = Brand.objects.filter(
-            products__platform='windows'
-        ).distinct()
-        
-        # Category-specific filter options
-        if category_slug == 'gpu':
-            context['gpu_types'] = ProductSpecification.objects.filter(
-                product__category__slug='gpu',
-                name='GPU Type'
-            ).values_list('value', flat=True).distinct()
-            
-        elif category_slug == 'ram':
-            context['memory_types'] = ProductSpecification.objects.filter(
-                product__category__slug='ram',
-                name='Memory Type'
-            ).values_list('value', flat=True).distinct()
-            
-            context['memory_sizes'] = ProductSpecification.objects.filter(
-                product__category__slug='ram',
-                name='Memory Size'
-            ).values_list('value', flat=True).distinct()
-            
-        elif category_slug in ['ssd', 'hdd']:
-            context['capacities'] = ProductSpecification.objects.filter(
-                product__category__slug=category_slug,
-                name='Capacity'
-            ).values_list('value', flat=True).distinct()
-            
-            if category_slug == 'ssd':
-                context['ssd_types'] = ProductSpecification.objects.filter(
-                    product__category__slug='ssd',
-                    name='Interface Type'
-                ).values_list('value', flat=True).distinct()
-        
-        # Pass the current category to the template
-        if category_slug:
-            context['current_category'] = Category.objects.filter(slug=category_slug).first()
-        
-        return context
 
+        # Add selected brands
+        context['selected_brands'] = self.request.GET.getlist('brand')
+        
+        # Add selected sort option
+        context['selected_sort'] = self.request.GET.get('sort')
+        
+        return context
 
 # Accessories Page View
 class AccessoriesView(ListView):

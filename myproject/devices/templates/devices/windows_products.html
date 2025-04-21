@@ -217,12 +217,46 @@
     .filter-button:hover {
         background-color: #005ea3;
     }
+
+    .sort-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        margin-left: auto;
+        justify-content: flex-end;
+    }
+
+    .sort-container label {
+        margin-right: 10px;
+        font-weight: bold;
+    }
+
+    .sort-container select {
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+    }
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // ใส่ script นี้ไว้ที่ส่วนท้ายของไฟล์ template หรือในไฟล์ JavaScript แยก
+    function applySort() {
+        const sortValue = document.getElementById('sort').value;
+        const urlParams = new URLSearchParams(window.location.search);
+
+        if (sortValue) {
+            urlParams.set('sort', sortValue);
+        } else {
+            urlParams.delete('sort');
+        }
+
+        // รีเซ็ตหน้าเพจเป็น 1 เมื่อเปลี่ยนการเรียงลำดับ
+        urlParams.delete('page');
+
+        window.location.search = urlParams.toString();
+    }
     function applyFilters() {
         // สร้าง URL พารามิเตอร์จากตัวกรองที่เลือก
         let url = new URL(window.location.href);
@@ -645,12 +679,17 @@
             Windows PC Components
             {% endif %}
         </h1>
-
-        {% if current_category %}
-        <p>{{ current_category.description|default:"Browse our selection of high-quality components" }}</p>
-        {% else %}
-        <p>Find the perfect components for your Windows PC build</p>
-        {% endif %}
+        <div class="sort-container">
+            <label for="sort">Sort by:</label>
+            <select id="sort" name="sort" onchange="applySort()">
+                <option value="">Default</option>
+                <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                <option value="name_asc" {% if selected_sort == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
+                <option value="name_desc" {% if selected_sort == 'name_desc' %}selected{% endif %}>Name: Z to A</option>
+                <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest</option>
+            </select>
+        </div>
 
         <div class="products-grid">
             {% for product in products %}
