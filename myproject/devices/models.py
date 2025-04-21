@@ -338,7 +338,7 @@ class Coupon(models.Model):
         return self.code
     
 def create_windows_subcategories(apps, schema_editor):
-    Category = apps.get_model('your_app_name', 'Category')
+    Category = apps.get_model('devices', 'Category')
     
     # First, create or get the main Windows category
     windows_category, created = Category.objects.get_or_create(
