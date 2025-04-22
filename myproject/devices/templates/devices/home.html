@@ -541,7 +541,7 @@
             <div class="hero-content">
                 <h1>Welcome to TechStore</h1>
                 <p>Your one-stop destination for the latest tech products across multiple platforms. Discover amazing deals on iOS devices, Windows computers, and must-have accessories.</p>
-                <a href="{% url 'devices:product_search' %}" class="btn btn-lg">Shop Now</a>
+                <!-- <a href="{% url 'devices:product_search' %}" class="btn btn-lg">Shop Now</a> -->
             </div>
         </div>
     </section>
@@ -573,6 +573,111 @@
         {% endfor %}
     </div>
     </section>
+    
+    <!-- Bestsellers -->
+    <section class="product-section">
+        <div class="container">
+            <h2 class="section-title">Bestsellers</h2>
+            
+            <div class="product-grid">
+                {% for product in bestsellers %}
+                    <div class="product-card">
+                        <div class="product-badges">
+                            {% if product.is_new %}<span class="badge bg-success">New</span>{% endif %}
+                            {% if product.is_bestseller %}<span class="badge bg-primary">Bestseller</span>{% endif %}
+                            {% if product.sale_price %}<span class="badge bg-danger">Sale</span>{% endif %}
+                        </div>
+                        
+                        <a href="{% url 'devices:product_detail' slug=product.slug %}" class="product-img">
+                            <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+                        </a>
+                        
+                        <div class="product-info">
+                            <a href="{% url 'devices:product_detail' slug=product.slug %}" class="product-title">{{ product.title }}</a>
+                            <p class="product-category">{{ product.category.name }}</p>
+                            
+                            <div class="product-price">
+                                {% if product.sale_price %}
+                                    <span class="old-price">${{ product.price|floatformat:2|intcomma }}</span>
+                                    <span class="current-price">${{ product.sale_price|floatformat:2|intcomma }}</span>
+                                {% else %}
+                                    <span class="current-price">${{ product.price|floatformat:2|intcomma }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="product-actions">
+                                <form action="{% url 'devices:add_to_cart' product_id=product.id %}" method="post" class="add-to-cart-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
+                                </form>
+                                {% if user.is_authenticated %}
+                                    <button type="button" class="favorite-btn" data-product-id="{{ product.id }}">
+                                      <i class="{% if product.id in favorite_ids %}fas text-danger{% else %}far{% endif %} fa-heart"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No bestselling products found.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    
+    <!-- New Arrivals -->
+    <section class="product-section">
+        <div class="container">
+            <h2 class="section-title">New Arrivals</h2>
+            
+            <div class="product-grid">
+                {% for product in new_products %}
+                    <div class="product-card">
+                        <div class="product-badges">
+                            {% if product.is_new %}<span class="badge bg-success">New</span>{% endif %}
+                            {% if product.is_bestseller %}<span class="badge bg-primary">Bestseller</span>{% endif %}
+                            {% if product.sale_price %}<span class="badge bg-danger">Sale</span>{% endif %}
+                        </div>
+                        
+                        <a href="{% url 'devices:product_detail' slug=product.slug %}" class="product-img">
+                            <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+                        </a>
+                        
+                        <div class="product-info">
+                            <a href="{% url 'devices:product_detail' slug=product.slug %}" class="product-title">{{ product.title }}</a>
+                            <p class="product-category">{{ product.category.name }}</p>
+                            
+                            <div class="product-price">
+                                {% if product.sale_price %}
+                                    <span class="old-price">${{ product.price|floatformat:2|intcomma }}</span>
+                                    <span class="current-price">${{ product.sale_price|floatformat:2|intcomma }}</span>
+                                {% else %}
+                                    <span class="current-price">${{ product.price|floatformat:2|intcomma }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="product-actions">
+                                <form action="{% url 'devices:add_to_cart' product_id=product.id %}" method="post" class="add-to-cart-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
+                                </form>
+                                {% if user.is_authenticated %}
+                                    <button type="button" class="favorite-btn" data-product-id="{{ product.id }}">
+                                      <i class="{% if product.id in favorite_ids %}fas text-danger{% else %}far{% endif %} fa-heart"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No new products found.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    
     <!-- Featured Products -->
     <section class="product-section">
         <div class="container">
@@ -641,58 +746,6 @@
         </div>
     </section>
     
-    <!-- New Arrivals -->
-    <section class="product-section">
-        <div class="container">
-            <h2 class="section-title">New Arrivals</h2>
-            
-            <div class="product-grid">
-                {% for product in new_products %}
-                    <div class="product-card">
-                        <div class="product-badges">
-                            {% if product.is_new %}<span class="badge bg-success">New</span>{% endif %}
-                            {% if product.is_bestseller %}<span class="badge bg-primary">Bestseller</span>{% endif %}
-                            {% if product.sale_price %}<span class="badge bg-danger">Sale</span>{% endif %}
-                        </div>
-                        
-                        <a href="{% url 'devices:product_detail' slug=product.slug %}" class="product-img">
-                            <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
-                        </a>
-                        
-                        <div class="product-info">
-                            <a href="{% url 'devices:product_detail' slug=product.slug %}" class="product-title">{{ product.title }}</a>
-                            <p class="product-category">{{ product.category.name }}</p>
-                            
-                            <div class="product-price">
-                                {% if product.sale_price %}
-                                    <span class="old-price">${{ product.price|floatformat:2|intcomma }}</span>
-                                    <span class="current-price">${{ product.sale_price|floatformat:2|intcomma }}</span>
-                                {% else %}
-                                    <span class="current-price">${{ product.price|floatformat:2|intcomma }}</span>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="product-actions">
-                                <form action="{% url 'devices:add_to_cart' product_id=product.id %}" method="post" class="add-to-cart-form">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="quantity" value="1">
-                                    <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
-                                </form>
-                                {% if user.is_authenticated %}
-                                    <button type="button" class="favorite-btn" data-product-id="{{ product.id }}">
-                                      <i class="{% if product.id in favorite_ids %}fas text-danger{% else %}far{% endif %} fa-heart"></i>
-                                    </button>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                {% empty %}
-                    <p>No new products found.</p>
-                {% endfor %}
-            </div>
-        </div>
-    </section>
-    
     <!-- Call to Action -->
     <section class="cta">
         <div class="container">
@@ -704,58 +757,6 @@
                     <button type="submit" class="btn btn-white">Subscribe</button>
                 </div>
             </form>
-        </div>
-    </section>
-    
-    <!-- Bestsellers -->
-    <section class="product-section">
-        <div class="container">
-            <h2 class="section-title">Bestsellers</h2>
-            
-            <div class="product-grid">
-                {% for product in bestsellers %}
-                    <div class="product-card">
-                        <div class="product-badges">
-                            {% if product.is_new %}<span class="badge bg-success">New</span>{% endif %}
-                            {% if product.is_bestseller %}<span class="badge bg-primary">Bestseller</span>{% endif %}
-                            {% if product.sale_price %}<span class="badge bg-danger">Sale</span>{% endif %}
-                        </div>
-                        
-                        <a href="{% url 'devices:product_detail' slug=product.slug %}" class="product-img">
-                            <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
-                        </a>
-                        
-                        <div class="product-info">
-                            <a href="{% url 'devices:product_detail' slug=product.slug %}" class="product-title">{{ product.title }}</a>
-                            <p class="product-category">{{ product.category.name }}</p>
-                            
-                            <div class="product-price">
-                                {% if product.sale_price %}
-                                    <span class="old-price">${{ product.price|floatformat:2|intcomma }}</span>
-                                    <span class="current-price">${{ product.sale_price|floatformat:2|intcomma }}</span>
-                                {% else %}
-                                    <span class="current-price">${{ product.price|floatformat:2|intcomma }}</span>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="product-actions">
-                                <form action="{% url 'devices:add_to_cart' product_id=product.id %}" method="post" class="add-to-cart-form">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="quantity" value="1">
-                                    <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
-                                </form>
-                                {% if user.is_authenticated %}
-                                    <button type="button" class="favorite-btn" data-product-id="{{ product.id }}">
-                                      <i class="{% if product.id in favorite_ids %}fas text-danger{% else %}far{% endif %} fa-heart"></i>
-                                    </button>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                {% empty %}
-                    <p>No bestselling products found.</p>
-                {% endfor %}
-            </div>
         </div>
     </section>
 </div>
