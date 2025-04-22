@@ -90,6 +90,7 @@
 
     /* Updated Product Card Styles */
     .product-card {
+        height: 100%;
         position: relative;
         background: white;
         border-radius: 8px;
@@ -215,6 +216,7 @@
     }
 
     .card-footer {
+        margin-top: auto;
         display: flex;
         justify-content: space-between;
         padding: 12px 15px;
@@ -888,7 +890,9 @@
                 {% endif %}
                 
                 {% if product.sale_price %}
+                {% if product.discount_percentage > 0 %}
                 <span class="discount-badge">Save {{ product.discount_percentage }}%</span>
+                {% endif %}
                 {% endif %}
 
                 {% if product.is_bestseller %}
