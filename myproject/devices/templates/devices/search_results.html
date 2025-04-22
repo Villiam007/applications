@@ -1,1 +1,243 @@
 {% extends "devices/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Search Results - Tech Store{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .search-header {
+        margin-bottom: 30px;
+    }
+
+    .filter-sidebar {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .filter-section {
+        margin-bottom: 20px;
+    }
+
+    .filter-title {
+        font-weight: 600;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .product-image {
+        height: 200px;
+        width: 100%;
+        object-fit: contain;
+        background: #f8f9fa;
+        padding: 10px;
+    }
+
+    .product-info {
+        padding: 15px;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 50px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .sort-container {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    @media (max-width: 768px) {
+        .products-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <div class="search-header">
+        <h1>Search Results for "{{ query }}"</h1>
+        <p>{{ total_results }} results found</p>
+    </div>
+
+    <div class="row">
+        <!-- Filter Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="filter-sidebar">
+                <form method="get" action="{% url 'devices:product_search' %}">
+                    <input type="hidden" name="q" value="{{ query }}">
+                    
+                    <!-- Category Filter -->
+                    <div class="filter-section">
+                        <h3 class="filter-title">Categories</h3>
+                        <div class="form-group">
+                            {% for category in categories %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="category" 
+                                       value="{{ category.slug }}" id="cat-{{ category.slug }}"
+                                       {% if category.slug in selected_categories %}checked{% endif %}>
+                                <label class="form-check-label" for="cat-{{ category.slug }}">
+                                    {{ category.name }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Brand Filter -->
+                    <div class="filter-section">
+                        <h3 class="filter-title">Brands</h3>
+                        <div class="form-group">
+                            {% for brand in brands %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="brand" 
+                                       value="{{ brand.slug }}" id="brand-{{ brand.slug }}"
+                                       {% if brand.slug in selected_brands %}checked{% endif %}>
+                                <label class="form-check-label" for="brand-{{ brand.slug }}">
+                                    {{ brand.name }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Price Range Filter -->
+                    <div class="filter-section">
+                        <h3 class="filter-title">Price Range</h3>
+                        <div class="row">
+                            <div class="col-6">
+                                <input type="number" class="form-control" name="min_price" 
+                                       placeholder="Min" value="{{ selected_min_price }}">
+                            </div>
+                            <div class="col-6">
+                                <input type="number" class="form-control" name="max_price" 
+                                       placeholder="Max" value="{{ selected_max_price }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="col-lg-9">
+            <div class="sort-container">
+                <select class="form-select" style="width: auto;" onchange="this.form.submit()" name="sort">
+                    <option value="-created_at" {% if sort == '-created_at' %}selected{% endif %}>Newest First</option>
+                    <option value="price" {% if sort == 'price' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="-price" {% if sort == '-price' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="title" {% if sort == 'title' %}selected{% endif %}>Name: A to Z</option>
+                    <option value="-title" {% if sort == '-title' %}selected{% endif %}>Name: Z to A</option>
+                </select>
+            </div>
+
+            {% if products %}
+            <div class="products-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <a href="{% url 'devices:product_detail' product.slug %}">
+                        <img src="{{ product.main_image.url }}" alt="{{ product.title }}" class="product-image">
+                    </a>
+                    <div class="product-info">
+                        <h5>{{ product.title }}</h5>
+                        <p class="text-muted">{{ product.brand.name }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if product.sale_price %}
+                                <span class="text-decoration-line-through text-muted me-2">
+                                    ${{ product.price|floatformat:2|intcomma }}
+                                </span>
+                                <span class="text-danger">
+                                    ${{ product.sale_price|floatformat:2|intcomma }}
+                                </span>
+                                {% else %}
+                                <span>${{ product.price|floatformat:2|intcomma }}</span>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'devices:product_detail' product.slug %}" 
+                               class="btn btn-sm btn-outline-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1&q={{ query }}{% if sort %}&sort={{ sort }}{% endif %}">&laquo; First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ query }}{% if sort %}&sort={{ sort }}{% endif %}">Previous</a>
+                    </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ query }}{% if sort %}&sort={{ sort }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&q={{ query }}{% if sort %}&sort={{ sort }}{% endif %}">Last &raquo;</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <div class="no-results">
+                <h3>No products found</h3>
+                <p>Try adjusting your search criteria or browse our categories.</p>
+                <a href="{% url 'devices:home' %}" class="btn btn-primary">Browse All Products</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
