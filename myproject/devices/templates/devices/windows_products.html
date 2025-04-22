@@ -496,7 +496,7 @@
         </div>
         Motherboard
     </a>
-    <a href="?category=gpu" class="category-item">
+    <a href="?category=graphics-card" class="category-item {% if request.GET.category == 'graphics-card' %}active{% endif %}">
         <div class="category-icon">
             <i class="fas fa-money-bill"></i>
         </div>
@@ -514,7 +514,7 @@
         </div>
         SSD
     </a>
-    <a href="?category=hdd" class="category-item">
+    <a href="?category=hard-disk" class="category-item {% if request.GET.category == 'hard-disk' %}active{% endif %}">
         <div class="category-icon">
             <i class="fas fa-database"></i>
         </div>
@@ -526,7 +526,7 @@
         </div>
         Case
     </a>
-    <a href="?category=psu" class="category-item">
+    <a href="?category=power-supply" class="category-item {% if request.GET.category == 'power-supply' %}active{% endif %}">
         <div class="category-icon">
             <i class="fas fa-plug"></i>
         </div>

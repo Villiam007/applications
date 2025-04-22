@@ -256,6 +256,14 @@ class WindowsProductsView(ListView):
         
         # Filter by category if requested
         category_slug = self.request.GET.get('category')
+
+        # Create a mapping for inconsistent slugs
+        category_mapping = {
+        'graphics-card': 'gpu',
+        'hard-disk': 'hdd', 
+        'power-supply': 'psu'
+        }
+
         if category_slug:
             queryset = queryset.filter(category__slug=category_slug)
         
