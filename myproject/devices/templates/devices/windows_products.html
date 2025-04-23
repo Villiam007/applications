@@ -88,17 +88,20 @@
         margin-top: 20px;
     }
 
+    /* Updated Product Card Styles */
     .product-card {
+        height: 100%;
+        position: relative;
         background: white;
         border-radius: 8px;
         overflow: hidden;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
     }
 
     .product-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
     }
 
     .product-image {
@@ -111,24 +114,165 @@
 
     .product-info {
         padding: 15px;
+        flex-grow: 1;
     }
 
     .product-title {
         font-weight: 600;
         margin-bottom: 5px;
         font-size: 16px;
+        color: #333;
     }
 
     .product-brand {
         color: #666;
         font-size: 14px;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
+    }
+
+    .product-description {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 12px;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .price-container {
+        font-size: 18px;
+        font-weight: bold;
+        color: #0070c9;
     }
 
     .product-price {
         font-weight: bold;
         font-size: 18px;
-        color: #0070c9;
+        color: #e53935;
+    }
+
+    .original-price {
+        text-decoration: line-through;
+        color: #999;
+        font-size: 14px;
+        margin-left: 5px;
+    }
+
+    .discount-badge {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #ffc107;
+        color: #333;
+        font-size: 12px;
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 5px;
+        z-index: 10;
+    }
+
+    .new-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: #28a745;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 5px;
+        z-index: 10;
+    }
+
+    .bestseller-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: #dc3545;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 5px;
+        z-index: 10;
+    }
+
+    .sale-price {
+        color: #e53935;
+        font-weight: bold;
+    }
+
+    .rating {
+        display: flex;
+        margin-top: 8px;
+        font-size: 14px;
+    }
+
+    .star {
+        color: #FFD700;
+        margin-right: 2px;
+    }
+
+    .card-footer {
+        margin-top: auto;
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 15px;
+        background-color: white;
+        border-top: 1px solid #eee;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background-color: #0070c9;
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #005ea3;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+        border: none;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    .btn-outline-secondary {
+        background-color: white;
+        color: #6c757d;
+        border: 1px solid #6c757d;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #f8f9fa;
+    }
+
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+
+    .favorite-btn.active i {
+        color: #dc3545;
     }
 
     /* Filter sidebar */
@@ -194,14 +338,6 @@
         }
     }
 
-    .show-more {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-    }
-
-    /* Filter button */
     .filter-button {
         background-color: #0070c9;
         color: white;
@@ -237,11 +373,142 @@
         border-radius: 5px;
         font-size: 14px;
     }
+    
+    /* Pagination styles */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .page-item {
+        list-style: none;
+        margin: 0 3px;
+    }
+    
+    .page-link {
+        display: inline-block;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        color: #0070c9;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .page-item.active .page-link {
+        background-color: #0070c9;
+        color: white;
+        border-color: #0070c9;
+    }
+    
+    .page-link:hover {
+        background-color: #e9ecef;
+    }
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+    // Add to cart functionality
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const productId = this.getAttribute('data-product-id');
+            const formData = new FormData();
+            formData.append('quantity', 1);
+            
+            fetch(`/cart/add/${productId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const msgContainer = document.getElementById('favorite-message');
+                    if (msgContainer && data.message) {
+                        msgContainer.innerHTML = `
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                ${data.message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `;
+                        setTimeout(() => {
+                            msgContainer.innerHTML = '';
+                        }, 7000);
+                    }
+                    
+                    // Update cart count in navbar if available
+                    const cartCount = document.querySelector('.cart-count');
+                    if (cartCount) {
+                        cartCount.textContent = data.cart_total;
+                    }
+                } else {
+                    alert(data.error || 'Failed to add product to cart');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+    });
+    // favorites functionality
+    document.querySelectorAll('.favorite-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const productId = this.getAttribute('data-product-id');
+            const icon = this.querySelector('i');
+            const isFavorite = icon.classList.contains('fas');
+            const url = isFavorite
+                ? `/favorites/remove/${productId}/`
+                : `/favorites/add/${productId}/`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Toggle heart icon
+                    if (isFavorite) {
+                        icon.classList.remove('fas', 'text-danger');
+                        icon.classList.add('far');
+                    } else {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas', 'text-danger');
+                    }
+                    // Show message 
+                    const msgContainer = document.getElementById('addtocart-message');
+                    if (msgContainer && data.message) {
+                        msgContainer.innerHTML = `
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                ${data.message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `;
+                        setTimeout(() => {
+                            msgContainer.innerHTML = '';
+                        }, 7000);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+    // Your existing script code here
     function applySort() {
         const sortValue = document.getElementById('sort').value;
         const urlParams = new URLSearchParams(window.location.search);
@@ -252,144 +519,43 @@
             urlParams.delete('sort');
         }
 
-        // รีเซ็ตหน้าเพจเป็น 1 เมื่อเปลี่ยนการเรียงลำดับ
+        // Reset page to 1 when changing sort order
         urlParams.delete('page');
 
         window.location.search = urlParams.toString();
     }
-    function applyFilters() {
-        // สร้าง URL พารามิเตอร์จากตัวกรองที่เลือก
-        let url = new URL(window.location.href);
-        let params = new URLSearchParams(url.search);
-
-        // เก็บค่า category และข้อมูลอื่นที่มีอยู่แล้ว
-        const category = params.get('category');
-        if (category) {
-            params.set('category', category);
-        }
-
-        // ดึงค่า brand ที่เลือกทั้งหมด
-        const selectedBrands = [];
-        document.querySelectorAll('input[name="brand"]:checked').forEach(el => {
-            selectedBrands.push(el.value);
+    
+    // Add event listener for favorite button
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle favorite button
+        const favoriteBtns = document.querySelectorAll('.favorite-btn');
+        favoriteBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                icon.classList.toggle('far');
+                icon.classList.toggle('fas');
+                icon.classList.toggle('text-danger');
+                
+                // Here you would add code to update the favorite status via AJAX
+                const productId = this.getAttribute('data-product-id');
+                console.log(`Toggle favorite for product ID: ${productId}`);
+            });
         });
 
-        // ลบ params เดิมก่อนเพิ่มค่าใหม่
-        params.delete('brand');
-        selectedBrands.forEach(brand => {
-            params.append('brand', brand);
+        // Add to cart button
+        const addToCartBtns = document.querySelectorAll('.add-to-cart');
+        addToCartBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product-id');
+                console.log(`Adding product ID ${productId} to cart`);
+                // Here you would add code to update the cart via AJAX
+            });
         });
-
-        // ดึงค่า price range
-        const priceValue = document.getElementById('price-slider').value;
-        params.set('price', priceValue);
-
-        // เพิ่มตัวกรองตาม category
-        if (category === 'gpu') {
-            const selectedGpuTypes = [];
-            document.querySelectorAll('input[name="gpu_type"]:checked').forEach(el => {
-                selectedGpuTypes.push(el.value);
-            });
-            params.delete('gpu_type');
-            selectedGpuTypes.forEach(type => {
-                params.append('gpu_type', type);
-            });
-        }
-
-        if (category === 'ram') {
-            const selectedMemoryTypes = [];
-            document.querySelectorAll('input[name="memory_type"]:checked').forEach(el => {
-                selectedMemoryTypes.push(el.value);
-            });
-            params.delete('memory_type');
-            selectedMemoryTypes.forEach(type => {
-                params.append('memory_type', type);
-            });
-
-            const selectedMemorySizes = [];
-            document.querySelectorAll('input[name="memory_size"]:checked').forEach(el => {
-                selectedMemorySizes.push(el.value);
-            });
-            params.delete('memory_size');
-            selectedMemorySizes.forEach(size => {
-                params.append('memory_size', size);
-            });
-        }
-
-        if (category === 'ssd') {
-            const selectedSsdTypes = [];
-            document.querySelectorAll('input[name="ssd_type"]:checked').forEach(el => {
-                selectedSsdTypes.push(el.value);
-            });
-            params.delete('ssd_type');
-            selectedSsdTypes.forEach(type => {
-                params.append('ssd_type', type);
-            });
-
-            const selectedCapacities = [];
-            document.querySelectorAll('input[name="capacity"]:checked').forEach(el => {
-                selectedCapacities.push(el.value);
-            });
-            params.delete('capacity');
-            selectedCapacities.forEach(capacity => {
-                params.append('capacity', capacity);
-            });
-        }
-
-        if (category === 'hdd') {
-            const selectedCapacities = [];
-            document.querySelectorAll('input[name="capacity"]:checked').forEach(el => {
-                selectedCapacities.push(el.value);
-            });
-            params.delete('capacity');
-            selectedCapacities.forEach(capacity => {
-                params.append('capacity', capacity);
-            });
-        }
-
-        // รีเซ็ตหน้าเพจเป็น 1 เมื่อใช้ตัวกรอง
-        params.delete('page');
-
-        // สร้าง URL ใหม่และเปลี่ยนหน้า
-        window.location.href = url.pathname + '?' + params.toString();
-    }
-
-    // เพิ่ม event listener สำหรับ price slider
-    document.addEventListener('DOMContentLoaded', function () {
-        const priceSlider = document.getElementById('price-slider');
-        const priceValue = document.getElementById('price-value');
-
-        if (priceSlider && priceValue) {
-            priceSlider.addEventListener('input', function () {
-                priceValue.textContent = this.value;
-            });
-        }
     });
-    // Add active class to current category
-    document.addEventListener('DOMContentLoaded', function () {
-        const urlParams = new URLSearchParams(window.location.search);
-        const category = urlParams.get('category');
-
-        if (category) {
-            const activeLink = document.querySelector(`.category-item[href="?category=${category}"]`);
-            if (activeLink) {
-                activeLink.classList.add('active');
-            }
-        }
-
-        // Price range slider
-        const priceSlider = document.getElementById('price-slider');
-        const priceValue = document.getElementById('price-value');
-
-        if (priceSlider && priceValue) {
-            priceSlider.addEventListener('input', function () {
-                priceValue.textContent = this.value;
-            });
-        }
-    });
-
-    // Function to apply filters
+    
+    // Continue with your existing filter functions...
     function applyFilters() {
+        // Your existing filter code...
         const urlParams = new URLSearchParams(window.location.search);
 
         // Get current category
@@ -460,6 +626,29 @@
         // Navigate to new URL
         window.location.href = newUrl;
     }
+    
+    // Active category highlighting
+    document.addEventListener('DOMContentLoaded', function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const category = urlParams.get('category');
+
+        if (category) {
+            const activeLink = document.querySelector(`.category-item[href="?category=${category}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
+        // Price range slider
+        const priceSlider = document.getElementById('price-slider');
+        const priceValue = document.getElementById('price-value');
+
+        if (priceSlider && priceValue) {
+            priceSlider.addEventListener('input', function () {
+                priceValue.textContent = this.value;
+            });
+        }
+    });
 </script>
 {% endblock %}
 
@@ -496,7 +685,7 @@
         </div>
         Motherboard
     </a>
-    <a href="?category=gpu" class="category-item">
+    <a href="?category=graphics-card" class="category-item {% if request.GET.category == 'graphics-card' %}active{% endif %}">
         <div class="category-icon">
             <i class="fas fa-money-bill"></i>
         </div>
@@ -514,7 +703,7 @@
         </div>
         SSD
     </a>
-    <a href="?category=hdd" class="category-item">
+    <a href="?category=hard-disk" class="category-item {% if request.GET.category == 'hard-disk' %}active{% endif %}">
         <div class="category-icon">
             <i class="fas fa-database"></i>
         </div>
@@ -526,7 +715,7 @@
         </div>
         Case
     </a>
-    <a href="?category=psu" class="category-item">
+    <a href="?category=power-supply" class="category-item {% if request.GET.category == 'power-supply' %}active{% endif %}">
         <div class="category-icon">
             <i class="fas fa-plug"></i>
         </div>
@@ -571,7 +760,7 @@
                 <h3>Price Range</h3>
                 <input type="range" min="0" max="300000" value="{{ request.GET.price|default:5000 }}" class="price-slider"
                     id="price-slider">
-                <div class="price-range">Up to $<span id="price-value">{{ request.GET.price|default:5000 }}</span></div>
+                <div class="price-range">Up to $<span id="price-value">{{ request.GET.price|default:300000 }}</span></div>
             </div>
 
             <!-- Category specific filters -->
@@ -619,7 +808,6 @@
             </div>
             {% endif %}
 
-            <!-- แก้ไขส่วนของ SSD -->
             {% if request.GET.category == 'ssd' %}
             <div class="filter-group">
                 <h3>Interface Type</h3>
@@ -649,7 +837,6 @@
             </div>
             {% endif %}
 
-            <!-- HDD Capacity filter -->
             {% if request.GET.category == 'hdd' %}
             <div class="filter-group">
                 <h3>Capacity</h3>
@@ -672,6 +859,8 @@
 
     <!-- Main Content Area -->
     <div class="main-content">
+        <div id="favorite-message"></div>
+        <div id="addtocart-message"></div>
         <h1>
             {% if current_category %}
             {{ current_category.name }}
@@ -691,49 +880,124 @@
             </select>
         </div>
 
+        {% if products %}
         <div class="products-grid">
             {% for product in products %}
             <div class="product-card">
-                <img src="{{ product.main_image.url }}" alt="{{ product.title }}" class="product-image">
+                {% if product.is_new %}
+                <span class="new-badge">New</span>
+                {% endif %}
+                
+                {% if product.sale_price %}
+                {% if product.discount_percentage > 0 %}
+                <span class="discount-badge">Save {{ product.discount_percentage }}%</span>
+                {% endif %}
+                {% endif %}
+
+                {% if product.is_bestseller %}
+                <span class="bestseller-badge">Best Seller</span>
+                {% endif %}
+                
+                <a href="{% url 'devices:product_detail' product.slug %}">
+                    <img src="{{ product.main_image.url }}" alt="{{ product.title }}" class="product-image">
+                </a>
+                
+                {% if product.has_color_options %}
+                <div class="color-swatches p-2 d-flex justify-content-center">
+                    {% for product_color in product.product_colors.all %}
+                    <div class="color-swatch me-1" 
+                         data-color="{{ product_color.color.hex_code }}"
+                         title="{{ product_color.color.name }}">
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
                 <div class="product-info">
                     <div class="product-title">{{ product.title }}</div>
                     <div class="product-brand">{{ product.brand.name }}</div>
-                    <div class="product-price">
+                    <div class="product-description">{{ product.short_description|truncatechars:60 }}</div>
+                    
+                    <div class="price-container">
                         {% if product.sale_price %}
-                        <span
-                            style="text-decoration: line-through; color: #999; font-size: 14px; margin-right: 5px;">${{product.price|floatformat:2|intcomma }}</span>
-                        <span style="color: #e53935;">${{ product.sale_price|floatformat:2|intcomma }}</span>
-                        <span
-                            style="background-color: #e53935; color: white; font-size: 12px; padding: 2px 5px; border-radius: 3px; margin-left: 5px;">-{{product.discount_percentage }}%</span>
+                        <div class="product-price">${{ product.sale_price|floatformat:2|intcomma }}</div>
+                        <div class="original-price">${{ product.price|floatformat:2|intcomma }}</div>
                         {% else %}
-                        ${{ product.price|floatformat:2|intcomma }}
+                        <div class="product-price">${{ product.price|floatformat:2|intcomma }}</div>
                         {% endif %}
                     </div>
+                    
+                    <div class="rating">
+                        {% with avg_rating=product.average_rating|default:"0" %}
+                        {% for i in "12345" %}
+                        {% if forloop.counter <= avg_rating|floatformat:"0" %}
+                        <i class="fas fa-star star"></i>
+                        {% elif forloop.counter <= avg_rating|add:"0.5"|floatformat:"0" %}
+                        <i class="fas fa-star-half-alt star"></i>
+                        {% else %}
+                        <i class="far fa-star star"></i>
+                        {% endif %}
+                        {% endfor %}
+                        {% endwith %}
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <button class="btn btn-sm btn-outline-secondary favorite-btn" data-product-id="{{ product.id }}">
+                        <i class="{% if product.id in favorite_ids %}fas text-danger{% else %}far{% endif %} fa-heart"></i>
+                    </button>
+                    <a href="{% url 'devices:product_detail' product.slug %}" class="btn btn-sm btn-primary">View Details</a>
+                    <button class="btn btn-sm btn-success add-to-cart" data-product-id="{{ product.id }}">
+                        <i class="fas fa-shopping-cart"></i>
+                    </button>
                 </div>
             </div>
-            {% empty %}
-            <div>No products found matching your criteria.</div>
             {% endfor %}
         </div>
+        {% endif %}
 
         <!-- Pagination -->
-        <div class="pagination">
-            <span class="step-links">
+         {% if is_paginated %}
+         <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
                 {% if page_obj.has_previous %}
-                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1">&laquo; first</a>
-                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">previous</a>
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="First">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
                 {% endif %}
-        
-                <span class="current">
-                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-                </span>
-        
+
+                {% for num in paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                
                 {% if page_obj.has_next %}
-                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">next</a>
-                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Last">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
                 {% endif %}
-            </span>
-        </div>
-    </div>
-</div>
-{% endblock %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% endblock %}

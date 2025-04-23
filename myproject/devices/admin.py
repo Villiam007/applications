@@ -30,6 +30,11 @@ class OrderItemInline(admin.TabularInline):
     def has_add_permission(self, request, obj=None):
         return False
 
+class ProductColorInline(admin.TabularInline):
+    model = ProductColor
+    extra = 1 
+    readonly_fields = ['is_default'] 
+
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['name', 'featured', 'created_at']
@@ -64,7 +69,7 @@ class ProductAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title',)}
     readonly_fields = ['created_at', 'updated_at']
     filter_horizontal = ['tags', 'colors']
-    inlines = [ProductImageInline, ProductSpecificationInline]
+    inlines = [ProductImageInline, ProductImageInline, ProductSpecificationInline]
     fieldsets = (
         ('Basic Information', {
             'fields': ('title', 'slug', 'description', 'short_description', 'main_image')

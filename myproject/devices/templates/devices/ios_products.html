@@ -45,8 +45,11 @@
 
     /* Product card styles */
     .product-card {
+        width: 100%;
+        max-width: 500px;
         transition: transform 0.3s, box-shadow 0.3s;
         overflow: hidden;
+        height: 100%
     }
 
     .product-card:hover {
@@ -77,10 +80,14 @@
         margin-right: 5px;
         border: 1px solid #ddd;
     }
-
+    
     /* Price styling */
     .price-container .text-danger {
         font-size: 1.1rem;
+    }
+
+    .product-info {
+        flex-grow: 1; /* ให้ส่วนข้อมูลสินค้าใช้พื้นที่ที่เหลือ */
     }
 
     .text-decoration-line-through {
@@ -105,6 +112,7 @@
     
     /* Card footer buttons */
     .card-footer {
+        margin-top: auto;
         border-top: 1px solid #f5f5f5;
     }
     
@@ -140,7 +148,9 @@
     
     /* Rating stars */
     .rating {
-        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
     }
     
     /* Empty results */
@@ -277,9 +287,11 @@
                                     <span class="badge bg-danger position-absolute top-0 end-0 m-2">Best Seller</span>
                                 {% endif %}
                                 {% if product.sale_price %}
+                                    {% if product.discount_percentage > 0 %}
                                     <span class="badge bg-warning text-dark position-absolute top-0 m-2" style="left: 50%; transform: translateX(-50%);">
                                         Save {{ product.discount_percentage }}%
                                     </span>
+                                    {% endif %}    
                                 {% endif %}
                                 
                                 <a href="{% url 'devices:product_detail' product.slug %}">

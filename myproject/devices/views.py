@@ -205,7 +205,7 @@ class IOSProductsView(ListView):
         # กรองตามสี
         color = self.request.GET.get('color')
         if color:
-            queryset = queryset.filter(colors__name=color)
+            queryset = queryset.filter(product_colors__color__name=color)
         
         # จัดเรียงสินค้า
         sort = self.request.GET.get('sort')
@@ -233,6 +233,8 @@ class IOSProductsView(ListView):
         context['available_colors'] = Color.objects.filter(
             productcolor__product__platform='ios'
         ).distinct()
+        # เพิ่มสีที่ถูกเลือก
+        context['selected_color'] = self.request.GET.get('color')
         # --- Add this block before return ---
         if self.request.user.is_authenticated:
             context['favorite_ids'] = set(
@@ -256,6 +258,14 @@ class WindowsProductsView(ListView):
         
         # Filter by category if requested
         category_slug = self.request.GET.get('category')
+
+        # Create a mapping for inconsistent slugs
+        category_mapping = {
+        'graphics-card': 'gpu',
+        'hard-disk': 'hdd', 
+        'power-supply': 'psu'
+        }
+
         if category_slug:
             queryset = queryset.filter(category__slug=category_slug)
         
