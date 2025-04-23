@@ -215,7 +215,7 @@
                         </div>
                         <input type="hidden" name="color" value="{{ request.GET.color }}">
                         <input type="hidden" name="sort" value="{{ request.GET.sort }}">
-                        <button type="submit" class="btn btn-primary w-100">Apply</button>
+                        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
                         {% if request.GET.min_price or request.GET.max_price or request.GET.color or request.GET.brand %}
                         <div class="active-filters mb-3">
                             {% if request.GET.min_price or request.GET.max_price %}
