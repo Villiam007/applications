@@ -72,6 +72,7 @@
 
     .main-content {
         flex-grow: 1;
+        padding-left: 20px;
     }
 
     /* Products grid */
@@ -223,7 +224,7 @@
         border-top: 1px solid #eee;
     }
 
-    .btn {
+    /* .btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -274,7 +275,7 @@
     .btn-sm {
         padding: 5px 10px;
         font-size: 12px;
-    }
+    } */
 
     .favorite-btn.active i {
         color: #dc3545;
@@ -289,16 +290,14 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
-    .mb-3-min{
-        padding-top: 10px;
-    }
-
     .filter-title {
+        padding-top: 15px;
+        font-size: 1.1rem;
         font-weight: 600;
-        margin-bottom: 10px;
-        font-size: 16px;
+        margin-bottom: 1rem;
+        color: #333;
         border-bottom: 1px solid #eee;
-        padding-bottom: 8px;
+        padding-bottom: 0.5rem;
     }
 
     .filter-group {
@@ -746,13 +745,15 @@
 
 <div class="page-container">
     <!-- Filter Sidebar -->
-    <div class="sidebar">
-        <div class="filter-section">
-            <h2 class="filter-title">Filters</h2>
+    <div class="col-lg-3 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Filters</h4>
+            </div>
 
-            <div class="filter-group">
-                <h3>Price Range</h3>
+            <div class="card-body">
                 <form method="get" class="price-filter">
+                    <h5 class="filter-title">Brands</h5>
                     <!-- Add other filters -->
                     <div class="checkbox-group">
                         {% for brand in available_brands %}
@@ -763,7 +764,8 @@
                         </div>
                         {% endfor %}
                     </div>
-                    <div class="mb-3-min">
+                    <h5 class="filter-title">Price Range</h5>
+                    <div class="mb-3">
                         <label for="min_price" class="form-label">Min Price</label>
                         <input type="number" id="min_price" name="min_price" class="form-control" placeholder="Min Price" value="{{ request.GET.min_price }}">
                     </div>
@@ -896,7 +898,7 @@
         {% if products %}
         <div class="products-grid">
             {% for product in products %}
-            <div class="product-card">
+            <div class="card h-100 product-card shadow-sm">
                 {% if product.is_new %}
                 <span class="new-badge">New</span>
                 {% endif %}
