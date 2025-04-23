@@ -195,94 +195,94 @@ class CouponForm(forms.Form):
         })
     )
 
-class RegistrationForm(UserCreationForm):
-    """
-    Extended user registration form with additional fields.
-    """
-    email = forms.EmailField(
-        required=True,
-        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'})
-    )
-    first_name = forms.CharField(
-        max_length=30,
-        required=True,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'})
-    )
-    last_name = forms.CharField(
-        max_length=30,
-        required=True,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'})
-    )
+# class RegistrationForm(UserCreationForm):
+#     """
+#     Extended user registration form with additional fields.
+#     """
+#     email = forms.EmailField(
+#         required=True,
+#         widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'})
+#     )
+#     first_name = forms.CharField(
+#         max_length=30,
+#         required=True,
+#         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'})
+#     )
+#     last_name = forms.CharField(
+#         max_length=30,
+#         required=True,
+#         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'})
+#     )
     
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
+#     class Meta:
+#         model = User
+#         fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
         
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Add CSS classes to all fields
-        for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         # Add CSS classes to all fields
+#         for field_name, field in self.fields.items():
+#             field.widget.attrs['class'] = 'form-control'
             
-        # Custom placeholders for username and password fields
-        self.fields['username'].widget.attrs['placeholder'] = 'Username'
-        self.fields['password1'].widget.attrs['placeholder'] = 'Password'
-        self.fields['password2'].widget.attrs['placeholder'] = 'Confirm Password'
+#         # Custom placeholders for username and password fields
+#         self.fields['username'].widget.attrs['placeholder'] = 'Username'
+#         self.fields['password1'].widget.attrs['placeholder'] = 'Password'
+#         self.fields['password2'].widget.attrs['placeholder'] = 'Confirm Password'
         
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.email = self.cleaned_data['email']
+#     def save(self, commit=True):
+#         user = super().save(commit=False)
+#         user.email = self.cleaned_data['email']
         
-        if commit:
-            user.save()
-            # Create user profile
-            UserProfile.objects.create(user=user)
+#         if commit:
+#             user.save()
+#             # Create user profile
+#             UserProfile.objects.create(user=user)
             
-        return user
+#         return user
 
-class ProductFilterForm(forms.Form):
-    """
-    Form for filtering products in category and platform pages.
-    """
-    brand = forms.ModelMultipleChoiceField(
-        queryset=Brand.objects.all(),
-        required=False,
-        widget=forms.CheckboxSelectMultiple(attrs={'class': 'filter-checkbox'})
-    )
-    min_price = forms.DecimalField(
-        required=False,
-        min_value=0,
-        widget=forms.NumberInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Min'})
-    )
-    max_price = forms.DecimalField(
-        required=False,
-        min_value=0,
-        widget=forms.NumberInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Max'})
-    )
-    sort = forms.ChoiceField(
-        choices=[
-            ('-created_at', 'Newest'),
-            ('price_low', 'Price: Low to High'),
-            ('price_high', 'Price: High to Low'),
-            ('name', 'Name: A to Z')
-        ],
-        required=False,
-        initial='-created_at',
-        widget=forms.Select(attrs={'class': 'form-select form-select-sm'})
-    )
+# class ProductFilterForm(forms.Form):
+#     """
+#     Form for filtering products in category and platform pages.
+#     """
+#     brand = forms.ModelMultipleChoiceField(
+#         queryset=Brand.objects.all(),
+#         required=False,
+#         widget=forms.CheckboxSelectMultiple(attrs={'class': 'filter-checkbox'})
+#     )
+#     min_price = forms.DecimalField(
+#         required=False,
+#         min_value=0,
+#         widget=forms.NumberInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Min'})
+#     )
+#     max_price = forms.DecimalField(
+#         required=False,
+#         min_value=0,
+#         widget=forms.NumberInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Max'})
+#     )
+#     sort = forms.ChoiceField(
+#         choices=[
+#             ('-created_at', 'Newest'),
+#             ('price_low', 'Price: Low to High'),
+#             ('price_high', 'Price: High to Low'),
+#             ('name', 'Name: A to Z')
+#         ],
+#         required=False,
+#         initial='-created_at',
+#         widget=forms.Select(attrs={'class': 'form-select form-select-sm'})
+#     )
     
-    def __init__(self, *args, **kwargs):
-        category = kwargs.pop('category', None)
-        platform = kwargs.pop('platform', None)
-        super().__init__(*args, **kwargs)
+#     def __init__(self, *args, **kwargs):
+#         category = kwargs.pop('category', None)
+#         platform = kwargs.pop('platform', None)
+#         super().__init__(*args, **kwargs)
         
-        # Filter brands based on category or platform if provided
-        if category:
-            self.fields['brand'].queryset = Brand.objects.filter(
-                products__category=category
-            ).distinct()
-        elif platform:
-            self.fields['brand'].queryset = Brand.objects.filter(
-                products__platform=platform
-            ).distinct()
+#         # Filter brands based on category or platform if provided
+#         if category:
+#             self.fields['brand'].queryset = Brand.objects.filter(
+#                 products__category=category
+#             ).distinct()
+#         elif platform:
+#             self.fields['brand'].queryset = Brand.objects.filter(
+#                 products__platform=platform
+#             ).distinct()
 
