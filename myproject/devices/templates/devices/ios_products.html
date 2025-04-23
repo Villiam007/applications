@@ -16,17 +16,13 @@
         padding-bottom: 0.5rem;
     }
 
-    /* Color filter options */
-    .color-options {
-        margin-bottom: 1.5rem;
-    }
 
     .color-option {
-        width: 25px;
-        height: 25px;
+        width: 39px;
+        height: 39px;
         border-radius: 50%;
-        margin-right: 8px;
-        margin-bottom: 8px;
+        margin-right: 10px;
+        margin-bottom: 10px;
         cursor: pointer;
         border: 1px solid #ddd;
         transition: transform 0.2s;
@@ -34,13 +30,13 @@
     }
 
     .color-option:hover {
-        transform: scale(1.1);
+        transform: scale(1.2);
         box-shadow: 0 0 5px rgba(0,0,0,0.2);
     }
 
     .color-option.active {
         border: 2px solid #000;
-        box-shadow: 0 0 8px rgba(0,0,0,0.3);
+        box-shadow: 0 0 8px rgba(0,0,0,0.4);
     }
 
     /* Product card styles */
@@ -194,20 +190,60 @@
                     <div class="color-options mb-4">
                         <div class="d-flex flex-wrap">
                             {% for color in available_colors %}
-                                <a href="?{% if request.GET.color == color.name %}{% else %}color={{ color.name }}{% endif %}" 
-                                   class="color-option {% if request.GET.color == color.name %}active{% endif %}"
-                                   data-color="{{ color.hex_code }}" 
-                                   title="{{ color.name }}">
-                                </a>
+                            <a href="?color={{ color.name }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
+                                class="color-option {% if request.GET.color == color.name %}active{% endif %}" 
+                                style="background-color: {{ color.hex_code }};" 
+                                title="{{ color.name }}">
+                            </a>
                             {% endfor %}
                             {% if request.GET.color %}
-                                <a href="?" class="btn btn-sm btn-outline-secondary ms-2">Clear</a>
+                            <a href="?{% if request.GET.min_price %}min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="btn btn-sm btn-outline-secondary ms-2">Clear</a>
                             {% endif %}
                         </div>
                     </div>
 
+                    <!-- Price Filter -->
+                    <h5 class="filter-title">Price</h5>
+                    <form method="get" class="price-filter mb-4">
+                        <div class="input-group">
+                            <input type="number" name="min_price" class="form-control" placeholder="Min" value="{{ request.GET.min_price }}">
+                            <input type="number" name="max_price" class="form-control" placeholder="Max" value="{{ request.GET.max_price }}">
+                            <input type="hidden" name="color" value="{{ request.GET.color }}">
+                            <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+                            <button type="submit" class="btn btn-primary">Apply</button>
+                        </div>
+                        {% if request.GET.min_price or request.GET.max_price or request.GET.color or request.GET.brand %}
+                        <div class="active-filters mb-3">
+                            {% if request.GET.min_price or request.GET.max_price %}
+                            <span class="badge bg-light text-dark me-2">
+                                Price: 
+                                {% if request.GET.min_price %}Min: {{ request.GET.min_price }}{% endif %}
+                                {% if request.GET.max_price %} Max: {{ request.GET.max_price }}{% endif %}
+                                <a href="?{% if request.GET.color %}color={{ request.GET.color }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="text-decoration-none ms-1">&times;</a>
+                            </span>
+                            {% endif %}
+                            
+                            {% if request.GET.color %}
+                            <span class="badge bg-light text-dark me-2">Color: {{ request.GET.color }}
+                                <a href="?{% if request.GET.brand %}brand={{ request.GET.brand }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="text-decoration-none ms-1">&times;</a>
+                            </span>
+                            {% endif %}
+                            
+                            {% if request.GET.brand %}
+                            <span class="badge bg-light text-dark me-2">Brand: {{ request.GET.brand|title }}
+                                <a href="?{% if request.GET.color %}color={{ request.GET.color }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="text-decoration-none ms-1">&times;</a>
+                            </span>
+                            {% endif %}
+                            
+                            {% if request.GET %}
+                            <a href="?" class="btn btn-sm btn-outline-secondary">Clear All</a>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </form>
+
                     <!-- Category Filter -->
-                    <h5 class="filter-title">Categories</h5>
+                    <!-- <h5 class="filter-title">Categories</h5>
                     <div class="category-options mb-4">
                         <ul class="list-group list-group-flush">
                             {% for category in categories %}
@@ -218,10 +254,10 @@
                                 </li>
                             {% endfor %}
                         </ul>
-                    </div>
+                    </div> -->
 
                     <!-- Brand Filter -->
-                    <h5 class="filter-title">Brands</h5>
+                    <!-- <h5 class="filter-title">Brands</h5>
                     <div class="brand-options mb-4">
                         <ul class="list-group list-group-flush">
                             {% for brand in brands %}
@@ -232,7 +268,7 @@
                                 </li>
                             {% endfor %}
                         </ul>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
