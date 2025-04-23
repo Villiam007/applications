@@ -242,6 +242,11 @@
         border: none;
     }
 
+    .btn-primary.w-100 {
+        width: 100%;
+        margin-top: 15px;
+    }
+
     .btn-primary:hover {
         background-color: #005ea3;
     }
@@ -282,6 +287,10 @@
         padding: 15px;
         margin-bottom: 20px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .mb-3-min{
+        padding-top: 10px;
     }
 
     .filter-title {
@@ -741,26 +750,33 @@
         <div class="filter-section">
             <h2 class="filter-title">Filters</h2>
 
-            <!-- Filter by Brand - Always present -->
-            <div class="filter-group">
-                <h3>Brands</h3>
-                <div class="checkbox-group">
-                    {% for brand in available_brands %}
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="brand-{{ brand.slug }}" name="brand" value="{{ brand.slug }}" 
-                        {% if brand.slug in selected_brands %}checked{% endif %}>
-                        <label for="brand-{{ brand.slug }}">{{ brand.name }}</label>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Filter by Price - Always present -->
             <div class="filter-group">
                 <h3>Price Range</h3>
-                <input type="range" min="0" max="300000" value="{{ request.GET.price|default:5000 }}" class="price-slider"
-                    id="price-slider">
-                <div class="price-range">Up to $<span id="price-value">{{ request.GET.price|default:300000 }}</span></div>
+                <form method="get" class="price-filter">
+                    <!-- Add other filters -->
+                    <div class="checkbox-group">
+                        {% for brand in available_brands %}
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="brand-{{ brand.slug }}" name="brand" value="{{ brand.slug }}" 
+                            {% if brand.slug in selected_brands %}checked{% endif %}>
+                            <label for="brand-{{ brand.slug }}">{{ brand.name }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-3-min">
+                        <label for="min_price" class="form-label">Min Price</label>
+                        <input type="number" id="min_price" name="min_price" class="form-control" placeholder="Min Price" value="{{ request.GET.min_price }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="max_price" class="form-label">Max Price</label>
+                        <input type="number" id="max_price" name="max_price" class="form-control" placeholder="Max Price" value="{{ request.GET.max_price }}">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                    <!-- Preserve other filters -->
+                    <input type="hidden" name="category" value="{{ request.GET.category }}">
+                    <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+                </form>
             </div>
 
             <!-- Category specific filters -->
@@ -851,9 +867,6 @@
                 </div>
             </div>
             {% endif %}
-
-            <!-- Apply Filters Button -->
-            <button class="filter-button" onclick="applyFilters()">Apply Filters</button>
         </div>
     </div>
 
