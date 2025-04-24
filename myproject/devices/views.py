@@ -221,8 +221,8 @@ class IOSProductsView(ListView):
             queryset = queryset.order_by('price')
         elif sort == 'price-high':
             queryset = queryset.order_by('-price')
-        elif sort == 'best-selling':
-            queryset = queryset.order_by('-sales')
+        # elif sort == 'best-selling':
+        #     queryset = queryset.order_by('-sales')
         
         return queryset
     
