@@ -206,6 +206,14 @@ class IOSProductsView(ListView):
         color = self.request.GET.get('color')
         if color:
             queryset = queryset.filter(product_colors__color__name=color)
+
+        # กรองตามช่วงราคา
+        min_price = self.request.GET.get('min_price')
+        max_price = self.request.GET.get('max_price')
+        if min_price:
+            queryset = queryset.filter(sale_price__gte=min_price)
+        if max_price:
+            queryset = queryset.filter(sale_price__lte=max_price)
         
         # จัดเรียงสินค้า
         sort = self.request.GET.get('sort')
@@ -255,6 +263,14 @@ class WindowsProductsView(ListView):
     
     def get_queryset(self):
         queryset = Product.objects.filter(platform='windows')
+
+        # กรองตามช่วงราคา
+        min_price = self.request.GET.get('min_price')
+        max_price = self.request.GET.get('max_price')
+        if min_price:
+            queryset = queryset.filter(sale_price__gte=min_price)
+        if max_price:
+            queryset = queryset.filter(sale_price__lte=max_price)
         
         # Filter by category if requested
         category_slug = self.request.GET.get('category')
