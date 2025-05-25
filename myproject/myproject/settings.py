@@ -137,3 +137,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Login URL for the application
 LOGIN_URL = '/login/'
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://mactrex.onrender.com',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+]
