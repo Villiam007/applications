@@ -392,22 +392,132 @@ class AccessoriesView(ListView):
     template_name = 'devices/accessories.html'
     context_object_name = 'products'
     paginate_by = 12
-
+    
     def get_queryset(self):
-        return Product.objects.filter(
-            category__name__icontains='accessory'
-        ).order_by('-created_at')
+        allowed_slugs = [
+            'case-for-mac', 'keyboard', 'earphones-and-headphones', 'mouse', 'other'
+        ]
+        category_slug = self.request.GET.get('category')
+        categories = Category.objects.filter(slug__in=allowed_slugs)
+        queryset = Product.objects.filter(category__in=categories)
 
+        # Filter by selected category
+        if category_slug in allowed_slugs:
+            queryset = queryset.filter(category__slug=category_slug)
+
+        # Filter by brand
+        selected_brands = self.request.GET.getlist('brand')
+        if selected_brands:
+            queryset = queryset.filter(brand__slug__in=selected_brands)
+
+        # Filter by price
+        min_price = self.request.GET.get('min_price')
+        max_price = self.request.GET.get('max_price')
+        if min_price:
+            queryset = queryset.filter(price__gte=min_price)
+        if max_price:
+            queryset = queryset.filter(price__lte=max_price)
+    
+        # จัดการการเรียงลำดับ (Sort)
+        sort = self.request.GET.get('sort')
+        if sort == 'price_asc':
+            queryset = queryset.order_by('price')
+        elif sort == 'price_desc':
+            queryset = queryset.order_by('-price')
+        elif sort == 'name_asc':
+            queryset = queryset.order_by('title')
+        elif sort == 'name_desc':
+            queryset = queryset.order_by('-title')
+        elif sort == 'newest':
+            queryset = queryset.order_by('-created_at')
+
+        return queryset.distinct()
+
+        return queryset.select_related('brand', 'category')
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.filter(
-            name__icontains='accessory'
-        ).distinct()
-        context['brands'] = Brand.objects.filter(
-            products__category__name__icontains='accessory'
-        ).distinct()
-        return context
+        allowed_slugs = [
+            'case-for-mac', 'keyboard', 'earphones-and-headphones', 'mouse', 'other'
+        ]
+        categories = Category.objects.filter(slug__in=allowed_slugs)
+        category_slug = self.request.GET.get('category')
+        context['connection_types'] = []
+        context['selected_connection_types'] = self.request.GET.getlist('connection_type')
+        current_category = categories.filter(slug=category_slug).first() if category_slug else None
 
+        # สำหรับ filter
+        context['categories'] = categories
+        context['current_category'] = current_category
+        context['available_brands'] = Brand.objects.filter(products__category__slug__in=allowed_slugs).distinct()
+        context['selected_brands'] = self.request.GET.getlist('brand')
+        context['selected_sort'] = self.request.GET.get('sort', '')
+
+        # ตัวเลือก filter เฉพาะแต่ละ category
+        if category_slug == 'keyboard':
+        # ดึงค่าทั้งหมดของ keyboard_type
+            context['keyboard_types'] = ProductSpecification.objects.filter(
+                product__category__slug='keyboard',
+                name='keyboard_type'
+            ).values_list('value', flat=True).distinct()
+            # รับค่าที่เลือกจาก GET
+            context['selected_keyboard_types'] = self.request.GET.getlist('keyboard_type')
+            # filter queryset ตาม keyboard_type ที่เลือก
+            keyboard_types = self.request.GET.getlist('keyboard_type')
+            if keyboard_types:
+                queryset = queryset.filter(
+                    productspecification__name='keyboard_type',
+                    productspecification__value__in=keyboard_types
+                )
+        if category_slug == 'mouse':
+            context['connection_types'] = ProductSpecification.objects.filter(
+                product__category__slug='mouse',
+                name='connection_type'
+            ).values_list('value', flat=True).distinct()
+        context['selected_connection_types'] = self.request.GET.getlist('connection_type')
+        connection_types = self.request.GET.getlist('connection_type')
+        if connection_types:
+            queryset = queryset.filter(
+                productspecification__name='connection_type',
+                productspecification__value__in=connection_types
+            )
+        if category_slug == 'earphones-headphones':
+            context['audio_types'] = ProductSpecification.objects.filter(
+                product__category__slug='earphones-headphones',
+                name='audio_type'
+            ).values_list('value', flat=True).distinct()
+        context['selected_audio_types'] = self.request.GET.getlist('audio_type')
+        audio_types = self.request.GET.getlist('audio_type')
+        if audio_types:
+            queryset = queryset.filter(
+                productspecification__name='audio_type',
+                productspecification__value__in=audio_types
+            )
+        if category_slug == 'case-for-mac':
+            context['mac_models'] = ProductSpecification.objects.filter(
+                product__category__slug='case-for-mac',
+                name='mac_model'
+            ).values_list('value', flat=True).distinct()
+        context['selected_mac_models'] = self.request.GET.getlist('mac_model')
+        mac_models = self.request.GET.getlist('mac_model')
+        if mac_models:
+            queryset = queryset.filter(
+                productspecification__name='mac_model',
+                productspecification__value__in=mac_models
+            )
+        if category_slug == 'other':
+            context['other_types'] = ProductSpecification.objects.filter(
+                product__category__slug='other',
+                name='other_type'
+            ).values_list('value', flat=True).distinct()
+            context['selected_other_types'] = self.request.GET.getlist('other_type')
+            other_types = self.request.GET.getlist('other_type')
+            if other_types:
+                queryset = queryset.filter(
+                    productspecification__name='other_type',
+                    productspecification__value__in=other_types
+                )
+            context['selected_sort'] = self.request.GET.get('sort', '')
+        return context
 
 # User Authentication & Profile Views
 @login_required

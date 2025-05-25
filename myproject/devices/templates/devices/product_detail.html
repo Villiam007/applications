@@ -744,11 +744,11 @@
 
                     <div class="product-price">
                         {% if product.sale_price %}
-                        <span class="old-price">${{ product.price|floatformat:2|intcomma }}</span>
-                        <span class="current-price">${{ product.sale_price|floatformat:2|intcomma }}</span>
+                        <span class="old-price">฿{{ product.price|floatformat:2|intcomma }}</span>
+                        <span class="current-price">฿{{ product.sale_price|floatformat:2|intcomma }}</span>
                         <span class="discount-badge">{{ product.discount_percentage }}% OFF</span>
                         {% else %}
-                        <span class="current-price">${{ product.price|floatformat:2|intcomma }}</span>
+                        <span class="current-price">฿{{ product.price|floatformat:2|intcomma }}</span>
                         {% endif %}
                     </div>
 

@@ -935,10 +935,10 @@
                     
                     <div class="price-container">
                         {% if product.sale_price %}
-                        <div class="product-price">${{ product.sale_price|floatformat:2|intcomma }}</div>
-                        <div class="original-price">${{ product.price|floatformat:2|intcomma }}</div>
+                        <div class="product-price">฿{{ product.sale_price|floatformat:2|intcomma }}</div>
+                        <div class="original-price">฿{{ product.price|floatformat:2|intcomma }}</div>
                         {% else %}
-                        <div class="product-price">${{ product.price|floatformat:2|intcomma }}</div>
+                        <div class="product-price">฿{{ product.price|floatformat:2|intcomma }}</div>
                         {% endif %}
                     </div>
                     
