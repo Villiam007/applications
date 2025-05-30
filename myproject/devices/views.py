@@ -218,11 +218,16 @@ class IOSProductsView(ListView):
         # จัดเรียงสินค้า
         sort = self.request.GET.get('sort')
         if sort == 'price-low':
-            queryset = queryset.order_by('price')
+            queryset = queryset.order_by('sale_price', 'price')
         elif sort == 'price-high':
-            queryset = queryset.order_by('-price')
-        # elif sort == 'best-selling':
-        #     queryset = queryset.order_by('-sales')
+            queryset = queryset.order_by('-sale_price', '-price')
+        elif sort == 'az':
+            queryset = queryset.order_by('title')
+        elif sort == 'za':
+            queryset = queryset.order_by('-title')
+        else:  # newest
+            queryset = queryset.order_by('-created_at')
+        return queryset
         
         return queryset
     

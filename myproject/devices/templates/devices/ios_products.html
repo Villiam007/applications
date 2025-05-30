@@ -2,7 +2,7 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}iOS Products{% endblock %}
+{% block title %}IOS Products{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -16,6 +16,45 @@
         padding-bottom: 0.5rem;
     }
 
+    .category-icon {
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+
+    .category-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px;
+        min-width: 100px;
+        text-align: center;
+        color: #333;
+        text-decoration: none;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s;
+    }
+
+    .category-item:hover {
+        background-color: #f0f0f0;
+        border-bottom-color: #0070c9;
+    }
+
+    .category-item.active {
+        border-bottom-color: #0070c9;
+        font-weight: bold;
+    }
+
+    .category-nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        overflow-x: auto;
+        background-color: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        padding: 10px 0;
+    }
 
     .color-option {
         width: 39px;
@@ -166,6 +205,30 @@
 {% endblock %}
 
 {% block content %}
+<!-- Category Navigation Bar -->
+<div class="category-nav">
+    <a href="?category=imac{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
+       class="category-item {% if request.GET.category == 'imac' %}active{% endif %}">
+        <div class="category-icon">
+            <i class="fa-solid fa-desktop"></i>
+        </div>
+        iMac
+    </a>
+    <a href="?category=macbook-air{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
+       class="category-item {% if request.GET.category == 'macbook-air' %}active{% endif %}">
+        <div class="category-icon">
+            <i class="fas fa-laptop"></i>
+        </div>
+        MacBook Air
+    </a>
+    <a href="?category=macbook-pro{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
+       class="category-item {% if request.GET.category == 'macbook-pro' %}active{% endif %}">
+        <div class="category-icon">
+            <i class="fas fa-laptop-code"></i>
+        </div>
+        MacBook Pro
+    </a>
+</div>
 <div class="container py-5">
     {% if messages %}
       {% for message in messages %}
@@ -280,14 +343,26 @@
         <!-- Product Grid -->
         <div class="col-lg-9">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">iOS Products</h2>
+                <h2 class="mb-0">
+                    {% if request.GET.category == "imac" %}
+                    iMac
+                    {% elif request.GET.category == "macbook-air" %}
+                    MacBook Air
+                    {% elif request.GET.category == "macbook-pro" %}
+                    MacBook Pro
+                    {% else %}
+                    IOS Products
+                    {% endif %}
+                </h2>
                 <div class="d-flex align-items-center">
                     <span class="me-2">Sort by:</span>
                     <select class="form-select form-select-sm" style="width: auto;">
-                        <option value="newest" {% if request.GET.sort == 'newest' or not request.GET.sort %}selected{% endif %}>Newest</option>
+                        <option value="" {% if not request.GET.sort %}selected{% endif %}>Default</option>
+                        <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>Newest</option>
                         <option value="price-low" {% if request.GET.sort == 'price-low' %}selected{% endif %}>Price: Low to High</option>
                         <option value="price-high" {% if request.GET.sort == 'price-high' %}selected{% endif %}>Price: High to Low</option>
-                        <option value="best-selling" {% if request.GET.sort == 'best-selling' %}selected{% endif %}>Best Selling</option>
+                        <option value="az" {% if request.GET.sort == 'az' %}selected{% endif %}>A-Z</option>
+                        <option value="za" {% if request.GET.sort == 'za' %}selected{% endif %}>Z-A</option>
                     </select>
                 </div>
             </div>
