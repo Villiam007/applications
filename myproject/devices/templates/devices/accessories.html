@@ -665,9 +665,14 @@
                 <span class="bestseller-badge">Best Seller</span>
                 {% endif %}
                 
+                {% if product.slug %}
                 <a href="{% url 'devices:product_detail' product.slug %}">
                     <img src="{{ product.main_image.url }}" alt="{{ product.title }}" class="product-image">
                 </a>
+                {% else %}
+                <img src="{{ product.main_image.url }}" alt="{{ product.title }}" class="product-image">
+                {% endif %}
+
                 
                 <div class="product-info">
                     <div class="product-title">{{ product.title }}</div>
@@ -702,7 +707,12 @@
                     <button class="btn btn-sm btn-outline-secondary favorite-btn" data-product-id="{{ product.id }}">
                         <i class="{% if product.id in favorite_ids %}fas text-danger{% else %}far{% endif %} fa-heart"></i>
                     </button>
+                    {% if product.slug %}
                     <a href="{% url 'devices:product_detail' product.slug %}" class="btn btn-sm btn-primary">View Details</a>
+                    {% else %}
+                    <button class="btn btn-sm btn-secondary" disabled>No Details</button>
+                    {% endif %}
+
                     <button class="btn btn-sm btn-success add-to-cart" data-product-id="{{ product.id }}">
                         <i class="fas fa-shopping-cart"></i>
                     </button>
