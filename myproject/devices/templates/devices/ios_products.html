@@ -228,6 +228,13 @@
         </div>
         MacBook Pro
     </a>
+    <a href="?category=mac-mini{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
+       class="category-item {% if request.GET.category == 'mac-mini' %}active{% endif %}">
+        <div class="category-icon">
+            <i class="fa-solid fa-server"></i>
+        </div>
+        Mac Mini
+    </a>
 </div>
 <div class="container py-5">
     {% if messages %}
