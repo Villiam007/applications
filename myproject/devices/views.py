@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib import messages
-from django.db.models import Q, Avg, Count
+from django.db.models import Q, Avg, Count, F
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.conf import settings
@@ -1024,3 +1024,130 @@ class ProfileView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         messages.success(self.request, 'Profile updated successfully!')
         return super().form_valid(form)
+
+class PromotionView(ListView):
+    model = Product
+    template_name = 'devices/promotion.html'
+    context_object_name = 'products'
+    paginate_by = 12
+
+    def get_queryset(self):
+        # Get products that are on sale (have sale_price)
+        queryset = Product.objects.filter(
+            sale_price__isnull=False,
+            sale_price__gt=0
+        ).order_by('-created_at')
+
+        # Filter by category if requested
+        category_slug = self.request.GET.get('category')
+        if category_slug:
+            queryset = queryset.filter(category__slug=category_slug)
+
+        # Filter by platform if requested
+        platform = self.request.GET.get('platform')
+        if platform:
+            queryset = queryset.filter(platform=platform)
+
+        # Filter by brand if requested
+        brand_slugs = self.request.GET.getlist('brand')
+        if brand_slugs:
+            queryset = queryset.filter(brand__slug__in=brand_slugs)
+
+        # Filter by price range
+        min_price = self.request.GET.get('min_price')
+        max_price = self.request.GET.get('max_price')
+        if min_price:
+            queryset = queryset.filter(sale_price__gte=min_price)
+        if max_price:
+            queryset = queryset.filter(sale_price__lte=max_price)
+
+        # Filter by discount percentage
+        min_discount = self.request.GET.get('min_discount')
+        if min_discount:
+            # Calculate discount percentage and filter
+            from django.db.models import F, Case, When, IntegerField
+            queryset = queryset.annotate(
+                discount_percentage=Case(
+                    When(price__gt=0, then=((F('price') - F('sale_price')) * 100) / F('price')),
+                    default=0,
+                    output_field=IntegerField()
+                )
+            ).filter(discount_percentage__gte=min_discount)
+
+        # Sorting
+        sort_option = self.request.GET.get('sort', 'newest')
+        if sort_option == 'discount_high':
+            # Sort by highest discount percentage
+            from django.db.models import F
+            queryset = queryset.annotate(
+                discount_percentage=((F('price') - F('sale_price')) * 100) / F('price')
+            ).order_by('-discount_percentage')
+        elif sort_option == 'price_low':
+            queryset = queryset.order_by('sale_price')
+        elif sort_option == 'price_high':
+            queryset = queryset.order_by('-sale_price')
+        elif sort_option == 'name_asc':
+            queryset = queryset.order_by('title')
+        elif sort_option == 'name_desc':
+            queryset = queryset.order_by('-title')
+        else:  # newest
+            queryset = queryset.order_by('-created_at')
+
+        return queryset.distinct()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Calculate discount percentage for each product
+        for product in context['products']:
+            if product.sale_price and product.price > 0:
+                discount = ((product.price - product.sale_price) / product.price) * 100
+                #product.discount_percentage = int(discount)
+            else:
+                product.discount_percentage = 0
+
+        # Add filter options
+        context['categories'] = Category.objects.filter(
+            products__sale_price__isnull=False,
+            products__sale_price__gt=0
+        ).distinct()
+        
+        context['brands'] = Brand.objects.filter(
+            products__sale_price__isnull=False,
+            products__sale_price__gt=0
+        ).distinct()
+
+        context['platforms'] = Product.objects.filter(
+            sale_price__isnull=False,
+            sale_price__gt=0
+        ).values_list('platform', flat=True).distinct()
+
+        # Add selected filters to context
+        context['selected_category'] = self.request.GET.get('category')
+        context['selected_platform'] = self.request.GET.get('platform')
+        context['selected_brands'] = self.request.GET.getlist('brand')
+        context['selected_sort'] = self.request.GET.get('sort', 'newest')
+        context['selected_min_price'] = self.request.GET.get('min_price')
+        context['selected_max_price'] = self.request.GET.get('max_price')
+        context['selected_min_discount'] = self.request.GET.get('min_discount')
+
+        # Add total count
+        context['total_results'] = self.get_queryset().count()
+
+        # Add user favorites if authenticated
+        if self.request.user.is_authenticated:
+            context['favorite_ids'] = set(
+                Favorite.objects.filter(user=self.request.user).values_list('product_id', flat=True)
+            )
+        else:
+            context['favorite_ids'] = set()
+
+        # Add featured promotions (products with highest discount)
+        context['featured_promotions'] = Product.objects.filter(
+            sale_price__isnull=False,
+            sale_price__gt=0
+        ).annotate(
+            discount_percent_anno=((F('price') - F('sale_price')) * 100) / F('price')
+            ).order_by('-discount_percent_anno')[:6]
+        
+        return context

@@ -1,0 +1,780 @@
+{% extends 'devices/base.html' %}
+{% load static %}
+
+{% block title %}Promotions & Deals - MacTrex{% endblock %}
+
+{% block extra_css %}
+<style>
+  .promotion-hero {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+    border-radius: 10px;
+    margin-top: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .promotion-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="rgba(255,255,255,0.1)"><polygon points="0,0 1000,100 1000,0"/></svg>');
+    pointer-events: none;
+  }
+
+  .promotion-hero-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .filters-sidebar {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+  }
+
+  .filter-section {
+    margin-bottom: 2rem;
+  }
+
+  .filter-section h5 {
+    color: var(--dark-gray);
+    font-weight: 600;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--light-gray);
+    margin-bottom: 1rem;
+  }
+
+  .filter-option {
+    margin-bottom: 0.5rem;
+  }
+
+  .filter-option input[type="checkbox"] {
+    margin-right: 0.5rem;
+    accent-color: var(--primary-color);
+  }
+
+  .filter-option label {
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .price-range-inputs {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .price-range-inputs input {
+    width: 80px;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+
+  .sort-controls {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .results-info {
+    color: var(--dark-gray);
+    font-weight: 500;
+  }
+
+  .sort-dropdown {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sort-dropdown select {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background: white;
+    cursor: pointer;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .promotion-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .promotion-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+
+  .discount-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--accent-color);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    z-index: 3;
+  }
+
+  .favorite-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.9);
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 3;
+  }
+
+  .favorite-btn:hover {
+    background: white;
+    color: var(--primary-color);
+  }
+
+  .favorite-btn.active {
+    color: var(--primary-color);
+    background: white;
+  }
+
+  .product-image {
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .product-image img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+
+  .promotion-card:hover .product-image img {
+    transform: scale(1.05);
+  }
+
+  .product-info {
+    padding: 1.25rem;
+  }
+
+  .product-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 0.75rem;
+    height: 2.5rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .price-section {
+    margin-bottom: 1rem;
+  }
+
+  .current-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-color);
+  }
+
+  .original-price {
+    font-size: 1rem;
+    color: #888;
+    text-decoration: line-through;
+    margin-left: 0.5rem;
+  }
+
+  .savings {
+    font-size: 0.85rem;
+    color: var(--success-color);
+    font-weight: 600;
+    margin-top: 0.25rem;
+  }
+
+  .product-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .btn-promotion {
+    flex: 1;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .btn-view-promotion {
+    background: var(--light-gray);
+    color: var(--dark-gray);
+  }
+
+  .btn-view-promotion:hover {
+    background: var(--border-color);
+    color: var(--dark-gray);
+  }
+
+  .btn-add-cart-promotion {
+    background: var(--primary-color);
+    color: white;
+  }
+
+  .btn-add-cart-promotion:hover {
+    background: var(--secondary-color);
+    color: white;
+  }
+
+  .featured-promotions {
+    margin-bottom: 3rem;
+  }
+
+  .featured-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .featured-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .featured-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .featured-discount {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .featured-title {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .clear-filters {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+  }
+
+  .clear-filters:hover {
+    background: #c82333;
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 3rem;
+    color: var(--dark-gray);
+  }
+
+  .no-results i {
+    font-size: 4rem;
+    color: var(--border-color);
+    margin-bottom: 1rem;
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 992px) {
+    .promotion-hero {
+      padding: 2rem 0;
+      margin-top: 1rem;
+    }
+
+    .filters-sidebar {
+      position: static;
+      margin-bottom: 1.5rem;
+    }
+
+    .sort-controls {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .product-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .featured-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .promotion-hero {
+      padding: 1.5rem 0;
+    }
+
+    .product-grid {
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+
+    .price-range-inputs {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .price-range-inputs input {
+      width: 100%;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <!-- Hero Section -->
+  <div class="promotion-hero">
+    <div class="promotion-hero-content text-center">
+      <h1 class="display-4 mb-3">🔥 Amazing Deals & Promotions</h1>
+      <p class="lead">Discover incredible savings on your favorite tech products</p>
+      <div class="mt-3">
+        <span class="badge bg-light text-dark me-2">Up to 70% OFF</span>
+        <span class="badge bg-light text-dark me-2">Free Shipping</span>
+        <span class="badge bg-light text-dark">Limited Time</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Featured Promotions -->
+  {% if featured_promotions %}
+  <div class="featured-promotions">
+    <h2 class="text-center mb-4">⭐ Featured Deals</h2>
+    <div class="featured-grid">
+      {% for product in featured_promotions|slice:":3" %}
+      <div class="featured-card">
+        <div class="featured-discount">-{{ product.discount_percent_anno|floatformat:0 }}%</div>
+        <div class="featured-title">{{ product.title|truncatechars:30 }}</div>
+        <div class="mb-3">
+          <strong>฿{{ product.sale_price }}</strong>
+          <small class="text-decoration-line-through ms-2">${{ product.price }}</small>
+        </div>
+        <a href="{{ product.get_absolute_url }}" class="btn btn-light btn-sm">View Deal</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="row">
+    <!-- Filters Sidebar -->
+    <div class="col-lg-3">
+      <div class="filters-sidebar">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="mb-0">Filters</h4>
+          <button type="button" class="clear-filters" onclick="clearAllFilters()">
+            <i class="fas fa-times"></i> Clear All
+          </button>
+        </div>
+
+        <form method="get" id="filterForm">
+          <!-- Categories -->
+          {% if categories %}
+          <div class="filter-section">
+            <h5><i class="fas fa-tags me-2"></i>Categories</h5>
+            {% for category in categories %}
+            <div class="filter-option">
+              <input type="radio" name="category" id="cat_{{ category.slug }}" 
+                     value="{{ category.slug }}" 
+                     {% if selected_category == category.slug %}checked{% endif %}>
+              <label for="cat_{{ category.slug }}">{{ category.name }}</label>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <!-- Platforms -->
+          {% if platforms %}
+          <div class="filter-section">
+            <h5><i class="fas fa-laptop me-2"></i>Platform</h5>
+            {% for platform in platforms %}
+            <div class="filter-option">
+              <input type="radio" name="platform" id="platform_{{ platform }}" 
+                     value="{{ platform }}" 
+                     {% if selected_platform == platform %}checked{% endif %}>
+              <label for="platform_{{ platform }}">{{ platform }}</label>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <!-- Brands -->
+          {% if brands %}
+          <div class="filter-section">
+            <h5><i class="fas fa-copyright me-2"></i>Brands</h5>
+            {% for brand in brands %}
+            <div class="filter-option">
+              <input type="checkbox" name="brand" id="brand_{{ brand.slug }}" 
+                     value="{{ brand.slug }}" 
+                     {% if brand.slug in selected_brands %}checked{% endif %}>
+              <label for="brand_{{ brand.slug }}">{{ brand.name }}</label>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <!-- Price Range -->
+          <div class="filter-section">
+            <h5><i class="fas fa-dollar-sign me-2"></i>Price Range</h5>
+            <div class="price-range-inputs">
+              <input type="number" name="min_price" placeholder="Min" 
+                     value="{{ selected_min_price }}" min="0" step="0.01">
+              <span>to</span>
+              <input type="number" name="max_price" placeholder="Max" 
+                     value="{{ selected_max_price }}" min="0" step="0.01">
+            </div>
+          </div>
+
+          <!-- Discount Range -->
+          <div class="filter-section">
+            <h5><i class="fas fa-percent me-2"></i>Minimum Discount</h5>
+            <select name="min_discount" class="form-select">
+              <option value="">Any Discount</option>
+              <option value="10" {% if selected_min_discount == "10" %}selected{% endif %}>10% or more</option>
+              <option value="20" {% if selected_min_discount == "20" %}selected{% endif %}>20% or more</option>
+              <option value="30" {% if selected_min_discount == "30" %}selected{% endif %}>30% or more</option>
+              <option value="50" {% if selected_min_discount == "50" %}selected{% endif %}>50% or more</option>
+              <option value="70" {% if selected_min_discount == "70" %}selected{% endif %}>70% or more</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="fas fa-filter me-2"></i>Apply Filters
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Products Section -->
+    <div class="col-lg-9">
+      <!-- Sort Controls -->
+      <div class="sort-controls">
+        <div class="results-info">
+          <strong>{{ total_results }}</strong> promotion{{ total_results|pluralize }} found
+        </div>
+        
+        <div class="sort-dropdown">
+          <label for="sortSelect">Sort by:</label>
+          <select id="sortSelect" name="sort" onchange="updateSort(this.value)">
+            <option value="newest" {% if selected_sort == "newest" %}selected{% endif %}>Newest First</option>
+            <option value="discount_high" {% if selected_sort == "discount_high" %}selected{% endif %}>Highest Discount</option>
+            <option value="price_low" {% if selected_sort == "price_low" %}selected{% endif %}>Price: Low to High</option>
+            <option value="price_high" {% if selected_sort == "price_high" %}selected{% endif %}>Price: High to Low</option>
+            <option value="name_asc" {% if selected_sort == "name_asc" %}selected{% endif %}>Name: A to Z</option>
+            <option value="name_desc" {% if selected_sort == "name_desc" %}selected{% endif %}>Name: Z to A</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      {% if products %}
+      <div class="product-grid">
+        {% for product in products %}
+        <div class="promotion-card">
+          <!-- Discount Badge -->
+          {% if product.discount_percentage > 0 %}
+          <div class="discount-badge">-{{ product.discount_percentage }}%</div>
+          {% endif %}
+
+          <!-- Favorite Button -->
+          <button class="favorite-btn {% if product.id in favorite_ids %}active{% endif %}" 
+                  onclick="toggleFavorite({{ product.id }}, this)">
+            <i class="fas fa-heart"></i>
+          </button>
+
+          <!-- Product Image -->
+          <div class="product-image">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.title }}" loading="lazy">
+            {% else %}
+              <div class="text-muted">
+                <i class="fas fa-image fa-3x"></i>
+                <div>No Image</div>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Product Info -->
+          <div class="product-info">
+            <h5 class="product-title">{{ product.title }}</h5>
+            
+            <div class="price-section">
+              <div>
+                <span class="current-price">฿{{ product.sale_price }}</span>
+                {% if product.price > product.sale_price %}
+                <span class="original-price">฿{{ product.price }}</span>
+                {% endif %}
+              </div>
+              {% if product.discount_percentage > 0 %}
+              <div class="savings">
+                You save: ฿{{ product.price|floatformat:2|add:"-"|add:product.sale_price|floatformat:2 }}
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Product Actions -->
+            <div class="product-actions">
+              <a href="{{ product.get_absolute_url }}" class="btn-promotion btn-view-promotion">
+                <i class="fas fa-eye"></i> View
+              </a>
+              <button class="btn-promotion btn-add-cart-promotion" 
+                      onclick="addToCart({{ product.id }})">
+                <i class="fas fa-cart-plus"></i> Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if is_paginated %}
+      <nav aria-label="Products pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">
+                <i class="fas fa-chevron-left"></i>
+              </a>
+            </li>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+              </li>
+            {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
+              <li class="page-item">
+                <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">
+                <i class="fas fa-chevron-right"></i>
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+
+      {% else %}
+      <!-- No Results -->
+      <div class="no-results">
+        <i class="fas fa-search"></i>
+        <h3>No promotions found</h3>
+        <p>Try adjusting your filters or check back later for new deals!</p>
+        <button class="btn btn-primary" onclick="clearAllFilters()">Clear Filters</button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Update sort without losing other filter
+function updateSort(sortValue) {
+  const url = new URL(window.location);
+  url.searchParams.set('sort', sortValue);
+  url.searchParams.set('page', '1'); // Reset to first page
+  window.location.href = url.toString();
+}
+
+// Clear all filters
+function clearAllFilters() {
+  window.location.href = '{% url "devices:promotions" %}';
+}
+
+// Toggle favorite (requires authentication)
+function toggleFavorite(productId, button) {
+  {% if user.is_authenticated %}
+    fetch(`/favorites/toggle/${productId}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        button.classList.toggle('active');
+        if (data.added) {
+          button.innerHTML = '<i class="fas fa-heart"></i>';
+        } else {
+          button.innerHTML = '<i class="far fa-heart"></i>';
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  {% else %}
+    alert('Please login to add favorites');
+    window.location.href = '{% url "devices:login" %}';
+  {% endif %}
+}
+
+// Add to cart functionality
+function addToCart(productId) {
+  {% if user.is_authenticated %}
+    fetch(`/cart/add/${productId}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ quantity: 1 })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Show success message
+        showMessage('Product added to cart!', 'success');
+        
+        // Update cart count in header if exists
+        const cartCount = document.querySelector('.cart-count');
+        if (cartCount) {
+          cartCount.textContent = data.cart_total;
+        }
+      } else {
+        showMessage('Error adding product to cart', 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showMessage('Error adding product to cart', 'error');
+    });
+  {% else %}
+    alert('Please login to add items to cart');
+    window.location.href = '{% url "devices:login" %}';
+  {% endif %}
+}
+
+// Show message function
+function showMessage(message, type) {
+  const alertDiv = document.createElement('div');
+  alertDiv.className = `alert alert-${type === 'error' ? 'danger' : 'success'} alert-dismissible fade show`;
+  alertDiv.innerHTML = `
+    ${message}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  `;
+  
+  const container = document.querySelector('.container');
+  container.insertBefore(alertDiv, container.firstChild);
+  
+  // Auto dismiss after 3 seconds
+  setTimeout(() => {
+    alertDiv.remove();
+  }, 3000);
+}
+
+// Auto-submit form when filters change
+document.addEventListener('DOMContentLoaded', function() {
+  const filterForm = document.getElementById('filterForm');
+  const filterInputs = filterForm.querySelectorAll('input[type="checkbox"], input[type="radio"], select');
+  
+  filterInputs.forEach(input => {
+    input.addEventListener('change', function() {
+      // Small delay to allow for multiple selections
+      clearTimeout(this.timeout);
+      this.timeout = setTimeout(() => {
+        filterForm.submit();
+      }, 300);
+    });
+  });
+
+  // For price inputs, submit on blur or enter
+  const priceInputs = filterForm.querySelectorAll('input[type="number"]');
+  priceInputs.forEach(input => {
+    input.addEventListener('blur', () => filterForm.submit());
+    input.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        filterForm.submit();
+      }
+    });
+  });
+});
+
+// Add CSRF token for AJAX requests
+{% csrf_token %}
+</script>
+{% endblock %}
